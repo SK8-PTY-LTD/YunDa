@@ -23,6 +23,7 @@ public class YDAddress extends AVObject {
 	// ================================================================================
 	
 	public YDAddress() {
+		
 	}
 	
 	public YDAddress(String objectId) {
