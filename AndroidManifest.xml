@@ -8,20 +8,55 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <application
+        android:name="asia.sk8.Yunda"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:name=".LoginActivity"
+            android:label="YunDa管理员登陆" 
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".TabActivity"
+            android:label="YunDa管理系统" 
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".ScanActivity"
+            android:label="扫描快递" 
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".FreightInActivity"
+            android:label="原件入库：美国收件" 
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".FreightActivity"
+            android:label="修改运单：输入信息" 
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".ViewFreightActivity"
+            android:label="查看运单" 
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
+
 
 </manifest>

@@ -1,7 +1,8 @@
 //================================================================================
-//SHAddress is a subclass of AVObject
+//YDAddress is a subclass of AVObject
 //Class name: Address
 //Author: Xujie Song
+//Copyright: SK8 PTY LTD
 //================================================================================
 
 package asia.sk8.yunda.objects;
@@ -43,7 +44,7 @@ public class YDAddress extends AVObject {
 	// ================================================================================
 
 	// ================================================================================
-	// Shelf Methods
+	// Yunda Methods
 	// ================================================================================
 
 	public void getUserWithCallBack(final UserCallback callback) {
