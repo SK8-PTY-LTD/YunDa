@@ -67,13 +67,15 @@ public class FreightActivity extends Activity {
 
 	private TextView YDNumberTextView;
 
-	private List<AVObject> transactionList  = new ArrayList<AVObject>();;
 
+	private float deliveryPrice = 0;
+	private float additionalPrice = 0;
+	private float insurance = 0;
+	private float extraPackageCost = 0;
 
-	private float deliveryPrice;
-	private float additionalPrice;
-	private float insurance;
-	private float extraPackageCost;
+	private TextView splitTextView;
+
+	private TextView extraWeightTextView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -114,17 +116,19 @@ public class FreightActivity extends Activity {
 
 		JSONArray statusGroup = freight.getJSONArray("statusGroup");
 		
-		final TextView splitTextView = (TextView) this.findViewById(R.id.freightSplitTextView);
-		if (statusGroup.toString().contains("210")) {
-			splitTextView.setText("是");
-		} else {
-			splitTextView.setText("否");
-		}
-		final TextView extraWeightTextView = (TextView) this.findViewById(R.id.freightExtraWeightTextView);
-		if (statusGroup.toString().contains("230")) {
-			extraWeightTextView.setText("是");
-		} else {
-			extraWeightTextView.setText("否");
+		splitTextView = (TextView) this.findViewById(R.id.freightSplitTextView);
+		extraWeightTextView = (TextView) this.findViewById(R.id.freightExtraWeightTextView);
+		if (statusGroup.toString() != null) {
+			if (statusGroup.toString().contains("210")) {
+				splitTextView.setText("是");
+			} else {
+				splitTextView.setText("否");
+			}
+			if (statusGroup.toString().contains("230")) {
+				extraWeightTextView.setText("是");
+			} else {
+				extraWeightTextView.setText("否");
+			}
 		}
 		
 		insuranceTextView.setText(freight.getString("insurance"));
@@ -134,7 +138,6 @@ public class FreightActivity extends Activity {
 			channelTextView.setText(channel.getString("name"));
 		} catch (JSONException e1) {
 			Toast.makeText(FreightActivity.this, "未找到发货渠道！", Toast.LENGTH_LONG).show();
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
@@ -170,7 +173,7 @@ public class FreightActivity extends Activity {
 					if (w != null && w.length() > 0) {
 						float weight = Float.parseFloat(w);
 						if (weight != 0) {
-							freight.setWeight(weight);
+							freight.setFinaleight(weight);
 						} else {
 							runOnUiThread(new Runnable() {
 								public void run() {
@@ -200,16 +203,19 @@ public class FreightActivity extends Activity {
 					}
 					
 					//Calculate freight pricing.
-					float weight = freight.getWeight();
+					float weight = Float.parseFloat(weightEditText.getText().toString());
+					freight.setWeight(weight);
+					
 					//Check 0.1 抹零
-					weight = Math.round(weight + 0.4);
+					float roundedWeight = Math.round(weight + 0.4);
+					Toast.makeText(FreightActivity.this, "重量：" + weight + "，抹零后：" + roundedWeight, Toast.LENGTH_SHORT).show();
 					//Check 起运磅数
 					try {
 						double startAt = channel.getDouble("startAt");
 						double initialPrice = channel.getDouble("initialPrice");
 						double continuePrice = channel.getDouble("continuePrice");
-						if (weight < startAt) {
-							weight = (float) startAt;
+						if (roundedWeight < startAt) {
+							roundedWeight = (float) startAt;
 						}
 						//Calculate Price
 						deliveryPrice = (float) (initialPrice + (weight - 1) * continuePrice);
@@ -217,10 +223,11 @@ public class FreightActivity extends Activity {
 						//若有体积重
 						//Check 0.1 抹零
 						float exceedWeight = freight.getExceedWeight();
-						exceedWeight = Math.round(exceedWeight + 0.4);
+						float roundedExceedWeight = Math.round(exceedWeight + 0.4);
+						Toast.makeText(FreightActivity.this, "体积重：" + exceedWeight + "，抹零后：" + roundedExceedWeight, Toast.LENGTH_SHORT).show();
 						
 						//Additional Price
-						additionalPrice = (exceedWeight - weight) * 1;
+						additionalPrice = (roundedExceedWeight - weight) * 1;
 						
 						insurance = 0;
 						int index = freight.getString("insurance").indexOf("(");
@@ -228,18 +235,44 @@ public class FreightActivity extends Activity {
 							String subString= freight.getString("insurance").substring(0 , index);
 							insurance = Float.parseFloat(subString);
 						}
+						Toast.makeText(FreightActivity.this, "保价：" + insurance, Toast.LENGTH_SHORT).show();
+						
 						extraPackageCost = 0;
-						if (extraWeightTextView.getText().toString() == "是") {
+						JSONArray statusGroup = freight.getJSONArray("statusGroup");
+						String statusString = statusGroup.toString();
+//						if (statusString.contains("210")) {
+//							if (statusString.contains("215")) {
+//								
+//							} else {
+//								
+//							}
+//						}
+						if (statusString.contains("230")) {
 							extraPackageCost = Yunda.setting.getNumber("addPackageCharge").floatValue();
+							if (statusString.contains("235")) {
+								Toast.makeText(FreightActivity.this, "加固价格（已付款）：" + extraPackageCost, Toast.LENGTH_SHORT).show();
+							} else {
+								Toast.makeText(FreightActivity.this, "加固价格（未付款）：" + extraPackageCost, Toast.LENGTH_SHORT).show();
+							}
 						}
 						
 						totalPrice = deliveryPrice + additionalPrice + insurance + extraPackageCost;
-						totalPrice = round(totalPrice,2);
+						totalPrice = round(totalPrice, 2);
+						Toast.makeText(FreightActivity.this, 
+								"总价：" + totalPrice + 
+								"=（首重）" + initialPrice +
+								"  +（续重）" + (weight - 1) + "x" + continuePrice + 
+								"  +（体积重）"  + additionalPrice +
+								"  +（保价）" + insurance + 
+								"  +（加固）" + extraPackageCost, Toast.LENGTH_LONG).show();
+						
+						if (totalPrice * 100 > user.getBalance()) {
+							Toast.makeText(FreightActivity.this, "用户余额不足！请点击“发货失败”", Toast.LENGTH_LONG).show();
+						}
 						
 						totalTextView.setText("USD$" + totalPrice);
 					} catch (JSONException e1) {
 						Toast.makeText(FreightActivity.this, "未找到发货渠道！", Toast.LENGTH_LONG).show();
-						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 			}
@@ -252,14 +285,12 @@ public class FreightActivity extends Activity {
 		});
 		failButton.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View arg0) {
-				
-					
+			public void onClick(View arg0) {	
 					String w = weightEditText.getText().toString();
 					if (w != null && w.length() > 0) {
 						float weight = Float.parseFloat(w);
 						if (weight != 0) {
-							freight.setWeight(weight);
+							freight.setFinaleight(weight);
 						} else {
 							runOnUiThread(new Runnable() {
 								public void run() {
@@ -301,7 +332,7 @@ public class FreightActivity extends Activity {
 					if (w != null && w.length() > 0) {
 						float weight = Float.parseFloat(w);
 						if (weight != 0) {
-							freight.setWeight(weight);
+							freight.setFinaleight(weight);
 							freight.setExceedWeight(Float.parseFloat(exceedWeightEditText.getText().toString()));
 						} else {
 							runOnUiThread(new Runnable() {
@@ -327,86 +358,8 @@ public class FreightActivity extends Activity {
 				} else if (totalPrice * 100 > user.getBalance()) {
 					Toast.makeText(FreightActivity.this, "用户余额不足！请点击“发货失败”", Toast.LENGTH_LONG).show();
 					return;
-				} else {					
-					user.setBalance((int) (user.getBalance() - totalPrice * 100));
-					
+				} else {
 					freight.setStatus(YDFreight.STATUS_PENDING_DELIVERY);
-					YDTransaction transaction0 = new YDTransaction();
-					transaction0.setAmount(deliveryPrice + additionalPrice + insurance);
-					transaction0.put("status", 300);
-					transaction0.put("notes", "运单处理，运单号：" + freight.getString("YDNumber"));
-					transaction0.put("YDNumber", freight.getString("YDNumber"));
-					transactionList.add(transaction0);
-
-					HashMap<String, Object> params = new HashMap<String, Object>();
-					params.put("userId", user.getObjectId());
-					params.put("amount", deliveryPrice + additionalPrice + insurance);
-					AVCloud.callFunctionInBackground("chargingUser", params,
-							new FunctionCallback<String>() {
-								@Override
-								public void done(String message, AVException e) {
-									
-								}
-							});
-					if (splitTextView.getText().toString() == "是") {
-						YDTransaction transaction1 = new YDTransaction();
-						transaction1.setAmount(Yunda.setting.getNumber("splitPackageCharge").floatValue());
-						transaction1.put("status", 310);
-						transaction1.put("notes", "分包收费，运单号：" + freight.getString("YDNumber"));
-						transaction1.put("YDNumber", freight.getString("YDNumber"));
-						transactionList.add(transaction1);
-
-						HashMap<String, Object> params1 = new HashMap<String, Object>();
-						params1.put("userId", user.getObjectId());
-						params1.put("amount", Yunda.setting.getNumber("splitPackageCharge"));
-						AVCloud.callFunctionInBackground("chargingUser", params,
-								new FunctionCallback<String>() {
-									@Override
-									public void done(String message, AVException e) {
-										
-									}
-								});
-					}
-					// 合包免费
-//					if (freight.getBoolean("isMerged")) {
-//						YDTransaction transaction2 = new YDTransaction();
-//						transaction2.setAmount(Yunda.setting.getNumber("addPackageCharge").floatValue());
-//						transaction2.put("status", 350);
-//						transaction2.put("notes", "合包收费，运单号：" + freight.getString("YDNumber"));
-//						transaction2.put("YDNumber", freight.getString("YDNumber"));
-//						transaction2.put("user", user);
-//						transactionList.add(transaction2);
-//						
-//						HashMap<String, Object> params1 = new HashMap<String, Object>();
-//						params1.put("userId", user.getObjectId());
-//						params1.put("amount", Yunda.setting.getNumber("addPackageCharge"));
-//						AVCloud.callFunctionInBackground("chargingUser", params,
-//								new FunctionCallback<String>() {
-//									@Override
-//									public void done(String message, AVException e) {
-//										
-//									}
-//								});
-//					}
-					if (extraWeightTextView.getText().toString() == "是") {
-						YDTransaction transaction2 = new YDTransaction();
-						transaction2.setAmount(extraPackageCost);
-						transaction2.put("status", 350);
-						transaction2.put("notes", "加固收费，运单号：" + freight.getString("YDNumber"));
-						transaction2.put("YDNumber", freight.getString("YDNumber"));
-						transactionList.add(transaction2);
-						
-						HashMap<String, Object> params1 = new HashMap<String, Object>();
-						params1.put("userId", user.getObjectId());
-						params1.put("amount", Yunda.setting.getNumber("addPackageCharge"));
-						AVCloud.callFunctionInBackground("chargingUser", params,
-								new FunctionCallback<String>() {
-									@Override
-									public void done(String message, AVException e) {
-										
-									}
-								});
-					}
 					new SaveFreightTask().execute();
 				}
 
@@ -443,7 +396,6 @@ public class FreightActivity extends Activity {
 	private class SaveFreightTask extends AsyncTask<Void, Void, Void> {
 
 		private ProgressDialog mProgressDialog;
-		private boolean saveSuccessful;
 
 		// Before anything is excuted, we need to create and show a
 		// ProgressDialog.
@@ -456,7 +408,7 @@ public class FreightActivity extends Activity {
 			// Set ProgressDialog title
 			mProgressDialog.setTitle("保存中...");
 			// Set ProgressDialog message
-			mProgressDialog.setMessage(freight.getObjectId());
+			mProgressDialog.setMessage(freight.getYDNumber());
 			mProgressDialog.setIndeterminate(false);
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.setCanceledOnTouchOutside(false);
@@ -468,14 +420,107 @@ public class FreightActivity extends Activity {
 		// It's OK to hand over whatever heavy task to Android here.
 		@Override
 		protected Void doInBackground(Void... param) {
+			
 			try {
-				transactionList.add(freight);
-				AVObject.saveAll(transactionList);
-				saveSuccessful = true;
+				
+				if (freight.getStatus() == YDFreight.STATUS_PENDING_FINISHED) {
+					// 发货失败
+					freight.save();
+				} else if (freight.getStatus() == YDFreight.STATUS_PENDING_DELIVERY) {
+					// 完成运单
+					// 检查并扣除运费和保价
+					if (totalPrice * 100 > user.getBalance()) {
+						Toast.makeText(FreightActivity.this, "用户余额不足！请点击“发货失败”", Toast.LENGTH_LONG).show();
+						freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
+						freight.save();
+						return null;
+					}
+					JSONArray statusGroup = freight.getJSONArray("statusGroup");
+					String statusString = statusGroup.toString();
+					if (!statusString.contains("495")) {
+						//Meaning delivery is not charged yet
+						HashMap<String, Object> params = new HashMap<String, Object>();
+						params.put("userId", user.getObjectId());
+						params.put("amount", deliveryPrice + additionalPrice + insurance);
+						params.put("notes", "运费：" + deliveryPrice + "，体积重：" + additionalPrice + "，保价：" + insurance + "运单号：" + freight.getYDNumber());
+						params.put("YDNumber", freight.getYDNumber());
+						params.put("RKNumber", freight.getRKNumber());
+						params.put("status", 300);
+						AVCloud.callFunction("chargingUser", params);
+						freight.addUnique("statusGroup", 495);
+						freight.save();
+					}
+					// 检查并扣除分包
+					if (statusString.contains("210") && !statusString.contains("215")) {
+						HashMap<String, Object> params1 = new HashMap<String, Object>();
+						//Check if split is already paid
+						AVQuery<YDFreightIn> query = YDFreightIn.getQuery(YDFreightIn.class);
+						String RawRKNumber = freight.getRKNumber().substring(0, 11);
+						query.whereStartsWith("RKNumber", RawRKNumber);
+						query.whereEqualTo("isChargeSplit", true);
+						List<YDFreightIn> list = query.find();
+						if (list.size() == 0) {
+							//Split paid
+						} else {
+							//Split not paid
+							params1.put("userId", user.getObjectId());
+							params1.put("amount", Yunda.setting.getNumber("splitPackageCharge"));
+							params1.put("notes", "分包收费，运单号：" + freight.getYDNumber());
+							params1.put("YDNumber", freight.getYDNumber());
+							params1.put("RKNumber", freight.getRKNumber());
+							params1.put("status", 310);
+							AVCloud.callFunction("chargingUserWithoutReward", params1);
+							freight.addUnique("statusGroup", 215);
+							freight.save();
+							
+							for (int i = 0; i < list.size(); i++) {
+								list.get(i).put("isChargeSplit", false);
+							}
+							AVObject.saveAll(list);
+
+							runOnUiThread(new Runnable() {
+								public void run() {
+									Toast.makeText(FreightActivity.this, "检测到分包，已一次性扣款成功！", Toast.LENGTH_LONG).show();
+								}
+							});
+						}
+					}
+					// 检查并扣除加固费用
+					if (statusString.contains("230") && !statusString.contains("235")) {
+
+						HashMap<String, Object> params2 = new HashMap<String, Object>();
+						params2.put("userId", user.getObjectId());
+						params2.put("amount", extraPackageCost);
+						params2.put("notes", "加固收费，运单号：" + freight.getYDNumber());
+						params2.put("YDNumber", freight.getYDNumber());
+						params2.put("RKNumber", freight.getRKNumber());
+						params2.put("status", 350);
+						AVCloud.callFunction("chargingUserWithoutReward", params2);
+						freight.addUnique("statusGroup", 235);
+						freight.save();
+						
+					}
+
+					freight.setStatus(YDFreight.STATUS_PENDING_DELIVERY);
+					freight.save();
+				}
 			} catch (final AVException e1) {
+				freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
+				freight.saveInBackground();
 				runOnUiThread(new Runnable() {
 					public void run() {
-						Toast.makeText(FreightActivity.this, "修改失败：网络错误： " + e1.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+						JSONArray statusGroup = freight.getJSONArray("statusGroup");
+						String statusString = statusGroup.toString();
+						if (!statusString.contains("495")) {
+							Toast.makeText(FreightActivity.this, "网络错误：扣款失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+						} else {
+							if (statusString.contains("210") && !statusString.contains("215")) {
+								Toast.makeText(FreightActivity.this, "网络错误：运费＋保价扣款成功，分包扣款失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+							}
+							if (statusString.contains("230") && !statusString.contains("235")) {
+								Toast.makeText(FreightActivity.this, "网络错误：运费＋保价＋分包扣款成功，加固扣款失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+							}
+						}
 					}
 				});
 				return null;
@@ -488,8 +533,11 @@ public class FreightActivity extends Activity {
 		protected void onPostExecute(Void result) {
 			// Close the ProgressDialog
 			mProgressDialog.dismiss();
-			if (saveSuccessful) {
-				Toast.makeText(FreightActivity.this, "修改成功！", Toast.LENGTH_LONG).show();
+			if (freight.getStatus() == YDFreight.STATUS_PENDING_DELIVERY) {
+				Toast.makeText(FreightActivity.this, "扣款成功！等待发货...", Toast.LENGTH_LONG).show();
+				finish();
+			} else if (freight.getStatus() == YDFreight.STATUS_PENDING_FINISHED) {
+				Toast.makeText(FreightActivity.this, "修改成功！已“发货失败”", Toast.LENGTH_LONG).show();
 				finish();
 			}
 		}

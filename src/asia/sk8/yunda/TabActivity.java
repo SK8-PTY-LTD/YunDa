@@ -142,86 +142,112 @@ public class TabActivity extends Activity implements TabListener {
 		int id = item.getItemId();
 		return super.onOptionsItemSelected(item);
 	}
+	
+	public void checkDeliveryId(final String deliveryId) {
 
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		IntentResult scanResult = IntentIntegrator.parseActivityResult(
-				requestCode, resultCode, intent);
-		if (scanResult != null) {
-			// handle scan result
-			String format = scanResult.getFormatName();
-			final String deliveryId = scanResult.getContents();
+		if (deliveryId != null) {
+			//Check content
+
+
+			Toast.makeText(TabActivity.this, "查询中...请稍后", Toast.LENGTH_LONG)
+					.show();
+			AVQuery<YDFreight> query0 = YDFreight.getQuery(YDFreight.class);
+			query0.whereEqualTo("trackingNumber", deliveryId);
+			AVQuery<YDFreight> query1 = YDFreight.getQuery(YDFreight.class);
+			query1.whereEqualTo("YDNumber", deliveryId);
 			
-			if (deliveryId != null) {
-				//Check content
+			List<AVQuery<YDFreight>> queries = new ArrayList<AVQuery<YDFreight>>();
+			queries.add(query0);
+			queries.add(query1);
 
+			AVQuery<YDFreight> mainQuery = AVQuery.or(queries);
+			mainQuery.include("user");
+			
+			mainQuery.findInBackground(new FindCallback<YDFreight>() {
 
-				Toast.makeText(TabActivity.this, "查询中...请稍后", Toast.LENGTH_LONG)
-						.show();
-				AVQuery<YDFreight> query0 = YDFreight.getQuery(YDFreight.class);
-				query0.whereEqualTo("trackingNumber", deliveryId);
-				AVQuery<YDFreight> query1 = YDFreight.getQuery(YDFreight.class);
-				query1.whereEqualTo("YDNumber", deliveryId);
-				
-				List<AVQuery<YDFreight>> queries = new ArrayList<AVQuery<YDFreight>>();
-				queries.add(query0);
-				queries.add(query1);
+				@Override
+				public void done(List<YDFreight> list, AVException e) {
+					if (e != null) {
+						Toast.makeText(TabActivity.this,
+								"错误；" + e.getLocalizedMessage(), Toast.LENGTH_LONG)
+								.show();
+						finish();
+					} else {
+						if (list.size() == 0) {
+							// 自主入库/未入库 case
+							Toast.makeText(TabActivity.this, "读取中...请稍后...",
+									Toast.LENGTH_LONG).show();
 
-				AVQuery<YDFreight> mainQuery = AVQuery.or(queries);
-				mainQuery.include("user");
-				
-				mainQuery.findInBackground(new FindCallback<YDFreight>() {
+							AVQuery<YDFreightIn> query = YDFreightIn
+									.getQuery(YDFreightIn.class);
+							query.whereEqualTo("trackingNumber", deliveryId);
+							query.findInBackground(new FindCallback<YDFreightIn>() {
+								@Override
+								public void done(List<YDFreightIn> list,
+										AVException e) {
+									Log.d("TEST", "CALLED");
+									if (e != null) {
+										Toast.makeText(TabActivity.this,
+												"错误；" + e.getLocalizedMessage(),
+												Toast.LENGTH_LONG).show();
+//										finish();
+									} else {
+										if (list.size() == 0) {
+											// 未 自主入库
+											// Generate RKNumber
+											long LOWER_RANGE = 1000000000L; // assign lower
+																	// range value
+											long UPPER_RANGE = 9999999999L; // assign
+																		// upper
+																		// range
+																		// value
+											Random random = new Random();
+											long randomValue = LOWER_RANGE
+													+ (long) (random.nextDouble() * (UPPER_RANGE - LOWER_RANGE));
+											String RKNumber = "RK" + randomValue;
+											// Generate new FreightIn
+											final YDFreightIn freightIn = new YDFreightIn();
+											freightIn.setStatus(YDFreightIn.STATUS_ARRIVED);
+											freightIn.put("RKNumber", RKNumber);
+											freightIn.setTrackingNumber(deliveryId);
+											//Show option for FreightIn
+											String[] array = new String[2];
+											array[0] = "入库";
+											array[1] = "取消";
+											AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
+											builder.setTitle("未入库快递：" + deliveryId).setItems(array,
+													new DialogInterface.OnClickListener() {
+														public void onClick(DialogInterface dialog,
+																int position) {
+															switch (position) {
+															case 0:
+																Intent intent = new Intent(
+																		TabActivity.this,
+																		FreightInActivity.class);
 
-					@Override
-					public void done(List<YDFreight> list, AVException e) {
-						if (e != null) {
-							Toast.makeText(TabActivity.this,
-									"错误；" + e.getLocalizedMessage(), Toast.LENGTH_LONG)
-									.show();
-							finish();
-						} else {
-							if (list.size() == 0) {
-								// 自主入库/未入库 case
-								Toast.makeText(TabActivity.this, "读取中...请稍后...",
-										Toast.LENGTH_LONG).show();
-
-								AVQuery<YDFreightIn> query = YDFreightIn
-										.getQuery(YDFreightIn.class);
-								query.whereEqualTo("trackingNumber", deliveryId);
-								query.findInBackground(new FindCallback<YDFreightIn>() {
-									@Override
-									public void done(List<YDFreightIn> list,
-											AVException e) {
-										Log.d("TEST", "CALLED");
-										if (e != null) {
-											Toast.makeText(TabActivity.this,
-													"错误；" + e.getLocalizedMessage(),
-													Toast.LENGTH_LONG).show();
-//											finish();
-										} else {
-											if (list.size() == 0) {
-												// 未 自主入库
-												// Generate RKNumber
-												long LOWER_RANGE = 1000000000L; // assign lower
-																		// range value
-												long UPPER_RANGE = 9999999999L; // assign
-																			// upper
-																			// range
-																			// value
-												Random random = new Random();
-												long randomValue = LOWER_RANGE
-														+ (long) (random.nextDouble() * (UPPER_RANGE - LOWER_RANGE));
-												String RKNumber = "RK" + randomValue;
-												// Generate new FreightIn
-												final YDFreightIn freightIn = new YDFreightIn();
+																//SDK Problem, use Static variable as workaround
+																Yunda.tempObject = freightIn;
+																//Proper way
+//																intent.putExtra("freightIn", freightIn.toString());
+																startActivity(intent);
+																break;
+															default:
+																break;
+															}
+															}
+														}).create().show();
+										} else if (list.size() == 1) {
+											//Do corresponding changes to FreightIn
+											final YDFreightIn freightIn = list.get(0);
+											if (freightIn.getStatus() == YDFreightIn.STATUS_MANUAL) {
+												// 用户已自主入库
 												freightIn.setStatus(YDFreightIn.STATUS_ARRIVED);
-												freightIn.put("RKNumber", RKNumber);
-												freightIn.setTrackingNumber(deliveryId);
 												//Show option for FreightIn
 												String[] array = new String[2];
 												array[0] = "入库";
 												array[1] = "取消";
 												AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
-												builder.setTitle("未入库快递：" + deliveryId).setItems(array,
+												builder.setTitle("已自助入库：" + deliveryId).setItems(array,
 														new DialogInterface.OnClickListener() {
 															public void onClick(DialogInterface dialog,
 																	int position) {
@@ -230,7 +256,6 @@ public class TabActivity extends Activity implements TabListener {
 																	Intent intent = new Intent(
 																			TabActivity.this,
 																			FreightInActivity.class);
-
 																	//SDK Problem, use Static variable as workaround
 																	Yunda.tempObject = freightIn;
 																	//Proper way
@@ -241,223 +266,196 @@ public class TabActivity extends Activity implements TabListener {
 																	break;
 																}
 																}
-															}).create().show();
-											} else if (list.size() == 1) {
-												//Do corresponding changes to FreightIn
-												final YDFreightIn freightIn = list.get(0);
-												if (freightIn.getStatus() == YDFreightIn.STATUS_MANUAL) {
-													// 用户已自主入库
-													freightIn.setStatus(YDFreightIn.STATUS_ARRIVED);
-													//Show option for FreightIn
-													String[] array = new String[2];
-													array[0] = "入库";
-													array[1] = "取消";
-													AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
-													builder.setTitle("已自助入库：" + deliveryId).setItems(array,
-															new DialogInterface.OnClickListener() {
-																public void onClick(DialogInterface dialog,
-																		int position) {
-																	switch (position) {
-																	case 0:
-																		Intent intent = new Intent(
-																				TabActivity.this,
-																				FreightInActivity.class);
-																		//SDK Problem, use Static variable as workaround
-																		Yunda.tempObject = freightIn;
-																		//Proper way
-//																		intent.putExtra("freightIn", freightIn.toString());
-																		startActivity(intent);
-																		break;
-																	default:
-																		break;
-																	}
-																	}
-																}).create().show();;
-												} else if (freightIn.getStatus() == YDFreightIn.STATUS_ARRIVED) {
-													Toast.makeText(TabActivity.this,
-															"包裹已入库，无需重复入库",
-															Toast.LENGTH_LONG).show();
-												} else if (freightIn.getStatus() == YDFreightIn.STATUS_PENDING_CHECK_PACKAGE) {
-													Toast.makeText(TabActivity.this,
-															"包裹已入库，等待开箱验货中",
-															Toast.LENGTH_LONG).show();
-												} else if (freightIn.getStatus() == YDFreightIn.STATUS_FINISHED_CHECK_PACKAGE) {
-													Toast.makeText(TabActivity.this,
-															"包裹已入库，验货已完成",
-															Toast.LENGTH_LONG).show();
-												} else if (freightIn.getStatus() == YDFreightIn.STATUS_CONFIRMED) {
-													Toast.makeText(TabActivity.this,
-															"包裹已入库，用户已确认入库",
-															Toast.LENGTH_LONG).show();
-												}
-											} else {
+															}).create().show();;
+											} else if (freightIn.getStatus() == YDFreightIn.STATUS_ARRIVED) {
 												Toast.makeText(TabActivity.this,
-														"错误；发现多个相同'转运号'，请查看后台",
+														"包裹已入库，无需重复入库",
 														Toast.LENGTH_LONG).show();
-//												finish();
+											} else if (freightIn.getStatus() == YDFreightIn.STATUS_PENDING_CHECK_PACKAGE) {
+												Toast.makeText(TabActivity.this,
+														"包裹已入库，等待开箱验货中",
+														Toast.LENGTH_LONG).show();
+											} else if (freightIn.getStatus() == YDFreightIn.STATUS_FINISHED_CHECK_PACKAGE) {
+												Toast.makeText(TabActivity.this,
+														"包裹已入库，验货已完成",
+														Toast.LENGTH_LONG).show();
+											} else if (freightIn.getStatus() == YDFreightIn.STATUS_CONFIRMED) {
+												Toast.makeText(TabActivity.this,
+														"包裹已入库，用户已确认入库",
+														Toast.LENGTH_LONG).show();
 											}
+										} else {
+											Toast.makeText(TabActivity.this,
+													"错误；发现多个相同'转运号'，请查看后台",
+													Toast.LENGTH_LONG).show();
+//											finish();
 										}
 									}
-								});
-
-							} else if (list.size() == 1) {
-								final YDFreight freight = list.get(0);
-								if (freight.getStatus() == YDFreight.STATUS_INITIALIZED) {
-									// 原箱闪运 case
-									Toast.makeText(TabActivity.this, "普通包裹，待处理...",
-											Toast.LENGTH_LONG).show();
-									//Show option for Freight
-									String[] array = new String[2];
-									array[0] = "处理";
-									array[1] = "取消";
-									AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
-									builder.setTitle("普通包裹：" + deliveryId).setItems(array,
-											new DialogInterface.OnClickListener() {
-												public void onClick(DialogInterface dialog,
-														int position) {
-													switch (position) {
-													case 0:
-														Intent intent = new Intent(
-																TabActivity.this,
-																FreightActivity.class);
-														//SDK Problem, use Static variable as workaround
-														Yunda.tempObject = freight;
-														//Proper way
-//														intent.putExtra("freight", freight.toString());
-														startActivity(intent);
-														break;
-													default:
-														break;
-													}
-													}
-												}).create().show();;
-								} else if (freight.getStatus() == YDFreight.STATUS_SPEED_MANUAL) {
-									// 原箱闪运 case
-									Toast.makeText(TabActivity.this, "原箱闪运，待处理...",
-											Toast.LENGTH_LONG).show();
-									freight.setStatus(0);
-									freight.saveInBackground();
-									//Show option for Freight
-									String[] array = new String[2];
-									array[0] = "处理";
-									array[1] = "取消";
-									AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
-									builder.setTitle("原箱闪运：" + deliveryId).setItems(array,
-											new DialogInterface.OnClickListener() {
-												public void onClick(DialogInterface dialog,
-														int position) {
-													switch (position) {
-													case 0:
-														Intent intent = new Intent(
-																TabActivity.this,
-																FreightActivity.class);
-														//SDK Problem, use Static variable as workaround
-														Yunda.tempObject = freight;
-														//Proper way
-//														intent.putExtra("freight", freight.toString());
-														startActivity(intent);
-														break;
-													default:
-														break;
-													}
-													}
-												}).create().show();;
-								} else if (freight.getStatus() == YDFreight.STATUS_PENDING_FINISHED) {
-									//先前扣款失败
-									Toast.makeText(TabActivity.this, "重新发货中...",
-											Toast.LENGTH_LONG).show();
-									//Show option for Freight
-									String[] array = new String[2];
-									array[0] = "重新发货";
-									array[1] = "取消";
-									AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
-									builder.setTitle("发货失败：" + deliveryId).setItems(array,
-											new DialogInterface.OnClickListener() {
-												public void onClick(DialogInterface dialog,
-														int position) {
-													switch (position) {
-													case 0:
-														Intent intent = new Intent(
-																TabActivity.this,
-																FreightActivity.class);
-														//SDK Problem, use Static variable as workaround
-														Yunda.tempObject = freight;
-														//Proper way
-//														intent.putExtra("freight", freight.toString());
-														startActivity(intent);
-														break;
-													default:
-														break;
-													}
-													}
-												}).create().show();;
-								} else if (freight.getStatus() == YDFreight.STATUS_PENDING_USER_ACTION) {
-									Toast.makeText(TabActivity.this, "等待用户操作...",
-											Toast.LENGTH_LONG).show();
-									Intent intent = new Intent(
-											TabActivity.this,
-											ViewFreightActivity.class);
-									//SDK Problem, use Static variable as workaround
-									Yunda.tempObject = freight;
-									//Proper way
-//									intent.putExtra("freight", freight.toString());
-									startActivity(intent);
-								} else if (freight.getStatus() == YDFreight.STATUS_PENDING_DELIVERY) {
-									Toast.makeText(TabActivity.this, "等待发货...",
-											Toast.LENGTH_LONG).show();
-									Intent intent = new Intent(
-											TabActivity.this,
-											ViewFreightActivity.class);
-									//SDK Problem, use Static variable as workaround
-									Yunda.tempObject = freight;
-									//Proper way
-//									intent.putExtra("freight", freight.toString());
-									startActivity(intent);
-								} else if (freight.getStatus() == YDFreight.STATUS_DELIVERING) {
-									Toast.makeText(TabActivity.this, "已发货...",
-											Toast.LENGTH_LONG).show();
-									Intent intent = new Intent(
-											TabActivity.this,
-											ViewFreightActivity.class);
-									//SDK Problem, use Static variable as workaround
-									Yunda.tempObject = freight;
-									//Proper way
-//									intent.putExtra("freight", freight.toString());
-									startActivity(intent);
-								} else if (freight.getStatus() == YDFreight.STATUS_CANCELED) {
-									Toast.makeText(TabActivity.this, "退货中...",
-											Toast.LENGTH_LONG).show();
-									Intent intent = new Intent(
-											TabActivity.this,
-											ViewFreightActivity.class);
-									//SDK Problem, use Static variable as workaround
-									Yunda.tempObject = freight;
-									//Proper way
-//									intent.putExtra("freight", freight.toString());
-									startActivity(intent);
-								} else {
-									Toast.makeText(TabActivity.this, "其他状态...",
-											Toast.LENGTH_LONG).show();
-									Intent intent = new Intent(
-											TabActivity.this,
-											ViewFreightActivity.class);
-									//SDK Problem, use Static variable as workaround
-									Yunda.tempObject = freight;
-									//Proper way
-//									intent.putExtra("freight", freight.toString());
-									startActivity(intent);
 								}
+							});
+
+						} else if (list.size() == 1) {
+							final YDFreight freight = list.get(0);
+							if (freight.getStatus() == YDFreight.STATUS_INITIALIZED) {
+								// 原箱闪运 case
+								Toast.makeText(TabActivity.this, "普通包裹，待处理...",
+										Toast.LENGTH_LONG).show();
+								//Show option for Freight
+								String[] array = new String[2];
+								array[0] = "处理";
+								array[1] = "取消";
+								AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
+								builder.setTitle("普通包裹：" + deliveryId).setItems(array,
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog,
+													int position) {
+												switch (position) {
+												case 0:
+													Intent intent = new Intent(
+															TabActivity.this,
+															FreightActivity.class);
+													//SDK Problem, use Static variable as workaround
+													Yunda.tempObject = freight;
+													//Proper way
+//													intent.putExtra("freight", freight.toString());
+													startActivity(intent);
+													break;
+												default:
+													break;
+												}
+												}
+											}).create().show();;
+							} else if (freight.getStatus() == YDFreight.STATUS_SPEED_MANUAL) {
+								// 原箱闪运 case
+								Toast.makeText(TabActivity.this, "原箱闪运，待处理...",
+										Toast.LENGTH_LONG).show();
+								//Show option for Freight
+								String[] array = new String[2];
+								array[0] = "打印运单";
+								array[1] = "取消";
+								AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
+								builder.setTitle("原箱闪运：" + deliveryId).setItems(array,
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog,
+													int position) {
+												switch (position) {
+												case 0:
+													freight.setStatus(0);
+													freight.saveInBackground();
+													Toast.makeText(TabActivity.this, "已入库，请至网页，打印运单...",
+															Toast.LENGTH_LONG).show();
+													break;
+												default:
+													break;
+												}
+												}
+											}).create().show();;
+							} else if (freight.getStatus() == YDFreight.STATUS_PENDING_FINISHED) {
+								//先前扣款失败
+								Toast.makeText(TabActivity.this, "重新发货中...",
+										Toast.LENGTH_LONG).show();
+								//Show option for Freight
+								String[] array = new String[2];
+								array[0] = "重新发货";
+								array[1] = "取消";
+								AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
+								builder.setTitle("发货失败：" + deliveryId).setItems(array,
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog,
+													int position) {
+												switch (position) {
+												case 0:
+													Intent intent = new Intent(
+															TabActivity.this,
+															FreightActivity.class);
+													//SDK Problem, use Static variable as workaround
+													Yunda.tempObject = freight;
+													//Proper way
+//													intent.putExtra("freight", freight.toString());
+													startActivity(intent);
+													break;
+												default:
+													break;
+												}
+												}
+											}).create().show();;
+							} else if (freight.getStatus() == YDFreight.STATUS_PENDING_USER_ACTION) {
+								Toast.makeText(TabActivity.this, "等待用户操作...",
+										Toast.LENGTH_LONG).show();
+								Intent intent = new Intent(
+										TabActivity.this,
+										ViewFreightActivity.class);
+								//SDK Problem, use Static variable as workaround
+								Yunda.tempObject = freight;
+								//Proper way
+//								intent.putExtra("freight", freight.toString());
+								startActivity(intent);
+							} else if (freight.getStatus() == YDFreight.STATUS_PENDING_DELIVERY) {
+								Toast.makeText(TabActivity.this, "等待发货...",
+										Toast.LENGTH_LONG).show();
+								Intent intent = new Intent(
+										TabActivity.this,
+										ViewFreightActivity.class);
+								//SDK Problem, use Static variable as workaround
+								Yunda.tempObject = freight;
+								//Proper way
+//								intent.putExtra("freight", freight.toString());
+								startActivity(intent);
+							} else if (freight.getStatus() == YDFreight.STATUS_DELIVERING) {
+								Toast.makeText(TabActivity.this, "已发货...",
+										Toast.LENGTH_LONG).show();
+								Intent intent = new Intent(
+										TabActivity.this,
+										ViewFreightActivity.class);
+								//SDK Problem, use Static variable as workaround
+								Yunda.tempObject = freight;
+								//Proper way
+//								intent.putExtra("freight", freight.toString());
+								startActivity(intent);
+							} else if (freight.getStatus() == YDFreight.STATUS_CANCELED) {
+								Toast.makeText(TabActivity.this, "退货中...",
+										Toast.LENGTH_LONG).show();
+								Intent intent = new Intent(
+										TabActivity.this,
+										ViewFreightActivity.class);
+								//SDK Problem, use Static variable as workaround
+								Yunda.tempObject = freight;
+								//Proper way
+//								intent.putExtra("freight", freight.toString());
+								startActivity(intent);
 							} else {
-								Toast.makeText(TabActivity.this,
-										"错误；发现相同'转运号'的多个 YD运单，请查看后台", Toast.LENGTH_LONG)
-										.show();
-//								finish();
+								Toast.makeText(TabActivity.this, "其他状态...",
+										Toast.LENGTH_LONG).show();
+								Intent intent = new Intent(
+										TabActivity.this,
+										ViewFreightActivity.class);
+								//SDK Problem, use Static variable as workaround
+								Yunda.tempObject = freight;
+								//Proper way
+//								intent.putExtra("freight", freight.toString());
+								startActivity(intent);
 							}
+						} else {
+							Toast.makeText(TabActivity.this,
+									"错误；发现相同'转运号'的多个 YD运单，请查看后台", Toast.LENGTH_LONG)
+									.show();
+//							finish();
 						}
 					}
+				}
 
-				});
-			}
+			});
+		}
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		IntentResult scanResult = IntentIntegrator.parseActivityResult(
+				requestCode, resultCode, intent);
+		if (scanResult != null) {
+			// handle scan result
+			String format = scanResult.getFormatName();
+			final String deliveryId = scanResult.getContents();
+			this.checkDeliveryId(deliveryId);
 		}
 	}
 

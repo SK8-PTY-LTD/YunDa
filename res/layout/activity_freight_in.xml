@@ -1,0 +1,183 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="8dp"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="asia.sk8.yunda.FreightInActivity" >
+
+    <TextView
+        android:id="@+id/freightInDeliveryIdTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView1"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@+id/textView1"
+        android:gravity="right"
+        android:singleLine="true"
+        android:text="1Z0000000000000000000"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="转运号："
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <Button
+        android:id="@+id/freightInConfirmButton"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="@android:color/holo_green_light"
+        android:text="确认入库" />
+
+    <Button
+        android:id="@+id/freightInGiveUpButton"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:background="@android:color/holo_red_light"
+        android:text="放弃入库" />
+
+    <TextView
+        android:id="@+id/TextView03"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView1"
+        android:layout_toLeftOf="@+id/freightInDeliveryIdTextView"
+        android:text="入库号："
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/freightInRKNumberTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/freightInDeliveryIdTextView"
+        android:layout_toRightOf="@+id/TextView01"
+        android:gravity="right"
+        android:singleLine="true"
+        android:text="RK0000000000"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/TextView01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/TextView03"
+        android:layout_below="@+id/TextView03"
+        android:text="数字Id:"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/freightInUserIdExitText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/TextView01"
+        android:ems="10"
+        android:imeOptions="actionNext"
+        android:inputType="number"
+        android:singleLine="false"
+        android:width="180dp" />
+        <requestFocus />
+
+    <EditText
+        android:id="@+id/freightInWeightEditText"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/freightInUserIdExitText"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/TextView02"
+        android:ems="10"
+        android:gravity="right"
+        android:imeOptions="actionNext"
+        android:inputType="numberDecimal"
+        android:singleLine="false"
+        android:text="0.0" >
+
+    </EditText>
+
+    <EditText
+        android:id="@+id/freightInNotesEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/TextView04"
+        android:layout_alignRight="@+id/freightInWeightEditText"
+        android:layout_below="@+id/TextView04"
+        android:layout_marginTop="18dp"
+        android:ems="10"
+        android:inputType="textMultiLine" />
+
+    <TextView
+        android:id="@+id/freightRequestTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/TextView02"
+        android:layout_below="@+id/freightInWeightEditText"
+        android:text="体积重"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/freightInExceedWeightEditText"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/freightInWeightEditText"
+        android:layout_alignRight="@+id/freightInWeightEditText"
+        android:layout_alignTop="@+id/freightRequestTextView"
+        android:ems="10"
+        android:gravity="right"
+        android:imeOptions="actionNext"
+        android:inputType="numberDecimal"
+        android:singleLine="false"
+        android:text="0.0" />
+
+    <TextView
+        android:id="@+id/TextView04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/freightRequestTextView"
+        android:layout_below="@+id/freightInExceedWeightEditText"
+        android:text="备注"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/TextView05"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/freightInUserIdExitText"
+        android:text="用户名:"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/freightInUserNameExitText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/freightInUserIdExitText"
+        android:layout_alignTop="@+id/TextView05"
+        android:ems="10"
+        android:imeOptions="actionNext"
+        android:inputType="text"
+        android:singleLine="false"
+        android:width="180dp" />
+
+    <TextView
+        android:id="@+id/TextView02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/TextView05"
+        android:layout_below="@+id/freightInUserNameExitText"
+        android:text="重量(磅)"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+</RelativeLayout>

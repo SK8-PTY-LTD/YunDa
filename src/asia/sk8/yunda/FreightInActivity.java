@@ -45,6 +45,8 @@ public class FreightInActivity extends Activity {
 
 	private Button confirmButton;
 
+	private EditText userNameEditText;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,6 +61,8 @@ public class FreightInActivity extends Activity {
 				.findViewById(R.id.freightInDeliveryIdTextView);
 		RKTextView = (TextView) this
 				.findViewById(R.id.freightInRKNumberTextView);
+		userNameEditText = (EditText) this
+				.findViewById(R.id.freightInUserNameExitText);
 		userIdEditText = (EditText) this
 				.findViewById(R.id.freightInUserIdExitText);
 		weightEditText = (EditText) this
@@ -89,6 +93,7 @@ public class FreightInActivity extends Activity {
 				} else {
 					Toast.makeText(FreightInActivity.this, "重量不得为空",
 							Toast.LENGTH_LONG).show();
+					return;
 				}
 				String ew = exceedWeightEditText.getText().toString();
 				if (Float.parseFloat(ew) < Float.parseFloat(w)) {
@@ -100,6 +105,14 @@ public class FreightInActivity extends Activity {
 						freightIn.setExceedWeight(Float.parseFloat(ew));
 					}
 					freightIn.setNote(noteEditText.getText().toString());
+
+					final String id = userIdEditText.getText().toString();
+					final String username = userNameEditText.getText().toString();
+					if (id == "" && username == "") {
+						Toast.makeText(FreightInActivity.this, "数字Id／用户名 二填写一", Toast.LENGTH_LONG).show();
+						return;
+					}
+					
 					new GenerateFreightInTask().execute();
 				}
 			}
@@ -155,21 +168,18 @@ public class FreightInActivity extends Activity {
 		protected Void doInBackground(Void... param) {
 
 			final String id = userIdEditText.getText().toString();
+			final String username = userNameEditText.getText().toString();
 			AVQuery<AVUser> query1 = AVUser.getQuery();
 			query1.whereEqualTo("numberId", id);
 			AVQuery<AVUser> query2 = AVUser.getQuery();
-			query2.whereEqualTo("objectId", id);
+			query2.whereEqualTo("stringId", username);
 			List<AVQuery<AVUser>> queries = new ArrayList<AVQuery<AVUser>>();
 			queries.add(query1);
 			queries.add(query2);
 			AVQuery mainQuery = AVQuery.or(queries);
 			try {
-				AVUser user = (AVUser) mainQuery.getFirst();
-				if (user != null) {
-					Log.i("FreightInActivity", "User is " + user.getUsername());
-					freightIn.setUser(AVUser.cast(user, YDUser.class));
-					freightIn.save();
-				} else {
+				final List<AVUser> userList = mainQuery.find();
+				if (userList.size() == 0) {
 					runOnUiThread(new Runnable() {
 						public void run() {
 							Toast.makeText(FreightInActivity.this,
@@ -177,7 +187,17 @@ public class FreightInActivity extends Activity {
 									.show();
 						}
 					});
-					return null;
+				} else if (userList.size() > 1) {
+					runOnUiThread(new Runnable() {
+						public void run() {
+							Toast.makeText(FreightInActivity.this, "入库失败：数字Id／用户名 请二填写一", Toast.LENGTH_LONG).show();
+						}
+					});
+				} else {
+					AVUser user = userList.get(0);
+					Log.i("FreightInActivity", "User is " + user.getUsername());
+					freightIn.setUser(AVUser.cast(user, YDUser.class));
+					freightIn.save();
 				}
 			} catch (final AVException e1) {
 				runOnUiThread(new Runnable() {

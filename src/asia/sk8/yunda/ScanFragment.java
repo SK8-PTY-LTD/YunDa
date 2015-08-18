@@ -29,11 +29,13 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -67,23 +69,41 @@ public class ScanFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_scan, container, false);
 
         ImageButton boxImage = (ImageButton) rootView.findViewById(R.id.Box);
+        final EditText idEditText = (EditText) rootView.findViewById(R.id.scanIdEditText);
+        Button confirmButton = (Button) rootView.findViewById(R.id.scanConfirmButton);
+        
+        confirmButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View view) {
+				TabActivity activity = (TabActivity) getActivity();
+				String deliveryId = idEditText.getText().toString();
+				if (deliveryId != null) {
+					activity.checkDeliveryId(deliveryId);
+				} else {
+					Toast.makeText(activity, "请输入单号！", Toast.LENGTH_LONG);
+				}
+			}
+        	
+        });
+        
 		View.OnClickListener imgBtOnClickListener = new View.OnClickListener() {
 			
 		@Override
 		public void onClick(View v) {
-
-		lanuchScanPackageActivity();	
+			lanuchScanPackageActivity();	
 		}
 	};
+	
 	boxImage.setOnClickListener(imgBtOnClickListener);
-        return rootView;
-
-    
+        return rootView;    
     }
 
     private void lanuchScanPackageActivity(){
     	IntentIntegrator integrator = new IntentIntegrator(getActivity());
     	integrator.initiateScan();
     }
+    
+    
 
 }

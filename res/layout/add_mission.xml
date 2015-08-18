@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:orientation="vertical" >
+
+          <TextView
+        android:id="@+id/nameTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:gravity="center_vertical"
+        android:text="@string/mission_name"
+        android:textSize="23sp" />
+
+    <EditText
+        android:id="@+id/nameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10" >
+        <requestFocus />
+    </EditText>
+    
+     <TextView
+        android:id="@+id/assignerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/assigner"
+        android:textSize="23sp" />
+
+    <EditText
+        android:id="@+id/assignerEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10" >
+                <requestFocus />
+    </EditText>
+    
+     <TextView
+        android:id="@+id/assigneeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/assignee"
+        android:textSize="23sp" />
+
+    <EditText
+        android:id="@+id/freightInUserIdExitText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10" >
+        <requestFocus />
+    </EditText>
+    
+       <Button
+           android:id="@+id/missionButton"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="Confirm" />
+    
+
+
+</LinearLayout>
