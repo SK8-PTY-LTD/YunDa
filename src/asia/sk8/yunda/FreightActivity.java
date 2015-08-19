@@ -205,9 +205,14 @@ public class FreightActivity extends Activity {
 					//Calculate freight pricing.
 					float weight = Float.parseFloat(weightEditText.getText().toString());
 					freight.setWeight(weight);
-					
 					//Check 0.1 抹零
-					float roundedWeight = Math.round(weight + 0.4);
+					float roundedWeight = 0;
+					if (weight - Math.floor(weight) <= 0.1) {
+						roundedWeight = Math.round(weight + 0.4);
+					} else {
+						roundedWeight = weight;
+					}
+					 
 					Toast.makeText(FreightActivity.this, "重量：" + weight + "，抹零后：" + roundedWeight, Toast.LENGTH_SHORT).show();
 					//Check 起运磅数
 					try {
@@ -218,16 +223,23 @@ public class FreightActivity extends Activity {
 							roundedWeight = (float) startAt;
 						}
 						//Calculate Price
-						deliveryPrice = (float) (initialPrice + (weight - 1) * continuePrice);
+						float continueWeight = roundedWeight - 1;
+						deliveryPrice = (float) (initialPrice + continueWeight * continuePrice);
 
 						//若有体积重
+						float exceedWeight = Float.parseFloat(exceedWeightEditText.getText().toString());
+						freight.setExceedWeight(exceedWeight);
 						//Check 0.1 抹零
-						float exceedWeight = freight.getExceedWeight();
-						float roundedExceedWeight = Math.round(exceedWeight + 0.4);
+						float roundedExceedWeight = 0;
+						if (exceedWeight - Math.floor(exceedWeight) <= 0.1) {
+							roundedExceedWeight = Math.round(exceedWeight + 0.4);
+						} else {
+							roundedExceedWeight = exceedWeight;
+						}
 						Toast.makeText(FreightActivity.this, "体积重：" + exceedWeight + "，抹零后：" + roundedExceedWeight, Toast.LENGTH_SHORT).show();
 						
 						//Additional Price
-						additionalPrice = (roundedExceedWeight - weight) * 1;
+						additionalPrice = (exceedWeight - weight) * 1;
 						
 						insurance = 0;
 						int index = freight.getString("insurance").indexOf("(");
@@ -261,8 +273,8 @@ public class FreightActivity extends Activity {
 						Toast.makeText(FreightActivity.this, 
 								"总价：" + totalPrice + 
 								"=（首重）" + initialPrice +
-								"  +（续重）" + (weight - 1) + "x" + continuePrice + 
-								"  +（体积重）"  + additionalPrice +
+								"  +（续重）" + String.format("%.02f", continueWeight) + "x" + continuePrice + 
+								"  +（体积重）"  + String.format("%.02f", additionalPrice) +
 								"  +（保价）" + insurance + 
 								"  +（加固）" + extraPackageCost, Toast.LENGTH_LONG).show();
 						
@@ -433,76 +445,77 @@ public class FreightActivity extends Activity {
 						Toast.makeText(FreightActivity.this, "用户余额不足！请点击“发货失败”", Toast.LENGTH_LONG).show();
 						freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
 						freight.save();
-						return null;
-					}
-					JSONArray statusGroup = freight.getJSONArray("statusGroup");
-					String statusString = statusGroup.toString();
-					if (!statusString.contains("495")) {
-						//Meaning delivery is not charged yet
-						HashMap<String, Object> params = new HashMap<String, Object>();
-						params.put("userId", user.getObjectId());
-						params.put("amount", deliveryPrice + additionalPrice + insurance);
-						params.put("notes", "运费：" + deliveryPrice + "，体积重：" + additionalPrice + "，保价：" + insurance + "运单号：" + freight.getYDNumber());
-						params.put("YDNumber", freight.getYDNumber());
-						params.put("RKNumber", freight.getRKNumber());
-						params.put("status", 300);
-						AVCloud.callFunction("chargingUser", params);
-						freight.addUnique("statusGroup", 495);
-						freight.save();
-					}
-					// 检查并扣除分包
-					if (statusString.contains("210") && !statusString.contains("215")) {
-						HashMap<String, Object> params1 = new HashMap<String, Object>();
-						//Check if split is already paid
-						AVQuery<YDFreightIn> query = YDFreightIn.getQuery(YDFreightIn.class);
-						String RawRKNumber = freight.getRKNumber().substring(0, 11);
-						query.whereStartsWith("RKNumber", RawRKNumber);
-						query.whereEqualTo("isChargeSplit", true);
-						List<YDFreightIn> list = query.find();
-						if (list.size() == 0) {
-							//Split paid
-						} else {
-							//Split not paid
-							params1.put("userId", user.getObjectId());
-							params1.put("amount", Yunda.setting.getNumber("splitPackageCharge"));
-							params1.put("notes", "分包收费，运单号：" + freight.getYDNumber());
-							params1.put("YDNumber", freight.getYDNumber());
-							params1.put("RKNumber", freight.getRKNumber());
-							params1.put("status", 310);
-							AVCloud.callFunction("chargingUserWithoutReward", params1);
-							freight.addUnique("statusGroup", 215);
+					} else {
+						JSONArray statusGroup = freight.getJSONArray("statusGroup");
+						String statusString = statusGroup.toString();
+						if (!statusString.contains("495")) {
+							//Meaning delivery is not charged yet
+							HashMap<String, Object> params = new HashMap<String, Object>();
+							params.put("userId", user.getObjectId());
+							params.put("amount", deliveryPrice + additionalPrice + insurance);
+							params.put("notes", "运单号：" + freight.getYDNumber() + "，运费：" + String.format("%.02f", deliveryPrice) + "，体积重：" + String.format("%.02f", additionalPrice) + "，保价：" + String.format("%.02f", insurance));
+							params.put("YDNumber", freight.getYDNumber());
+							params.put("RKNumber", freight.getRKNumber());
+							params.put("status", 300);
+							AVCloud.callFunction("chargingUser", params);
+							freight.addUnique("statusGroup", 495);
+							freight.save();
+						}
+						// 检查并扣除分包
+						if (statusString.contains("210") && !statusString.contains("215")) {
+							HashMap<String, Object> params1 = new HashMap<String, Object>();
+							//Check if split is already paid
+							AVQuery<YDFreightIn> query = YDFreightIn.getQuery(YDFreightIn.class);
+							String RawRKNumber = freight.getRKNumber().substring(0, 11);
+							query.whereStartsWith("RKNumber", RawRKNumber);
+							query.whereEqualTo("isChargeSplit", true);
+							query.whereEqualTo("isSplitPremium", true);
+							List<YDFreightIn> list = query.find();
+							if (list.size() == 0) {
+								//Split paid
+							} else {
+								//Split not paid
+								params1.put("userId", user.getObjectId());
+								params1.put("amount", Yunda.setting.getNumber("splitPackageCharge"));
+								params1.put("notes", "分包收费，运单号：" + freight.getYDNumber());
+								params1.put("YDNumber", freight.getYDNumber());
+								params1.put("RKNumber", freight.getRKNumber());
+								params1.put("status", 310);
+								AVCloud.callFunction("chargingUserWithoutReward", params1);
+								freight.addUnique("statusGroup", 215);
+								freight.save();
+								
+								for (int i = 0; i < list.size(); i++) {
+									list.get(i).put("isChargeSplit", false);
+								}
+								AVObject.saveAll(list);
+
+								runOnUiThread(new Runnable() {
+									public void run() {
+										Toast.makeText(FreightActivity.this, "检测到分包，已一次性扣款成功！", Toast.LENGTH_LONG).show();
+									}
+								});
+							}
+						}
+						// 检查并扣除加固费用
+						if (statusString.contains("230") && !statusString.contains("235")) {
+
+							HashMap<String, Object> params2 = new HashMap<String, Object>();
+							params2.put("userId", user.getObjectId());
+							params2.put("amount", extraPackageCost);
+							params2.put("notes", "加固收费，运单号：" + freight.getYDNumber());
+							params2.put("YDNumber", freight.getYDNumber());
+							params2.put("RKNumber", freight.getRKNumber());
+							params2.put("status", 350);
+							AVCloud.callFunction("chargingUserWithoutReward", params2);
+							freight.addUnique("statusGroup", 235);
 							freight.save();
 							
-							for (int i = 0; i < list.size(); i++) {
-								list.get(i).put("isChargeSplit", false);
-							}
-							AVObject.saveAll(list);
-
-							runOnUiThread(new Runnable() {
-								public void run() {
-									Toast.makeText(FreightActivity.this, "检测到分包，已一次性扣款成功！", Toast.LENGTH_LONG).show();
-								}
-							});
 						}
-					}
-					// 检查并扣除加固费用
-					if (statusString.contains("230") && !statusString.contains("235")) {
 
-						HashMap<String, Object> params2 = new HashMap<String, Object>();
-						params2.put("userId", user.getObjectId());
-						params2.put("amount", extraPackageCost);
-						params2.put("notes", "加固收费，运单号：" + freight.getYDNumber());
-						params2.put("YDNumber", freight.getYDNumber());
-						params2.put("RKNumber", freight.getRKNumber());
-						params2.put("status", 350);
-						AVCloud.callFunction("chargingUserWithoutReward", params2);
-						freight.addUnique("statusGroup", 235);
+						freight.setStatus(YDFreight.STATUS_PENDING_DELIVERY);
 						freight.save();
-						
 					}
-
-					freight.setStatus(YDFreight.STATUS_PENDING_DELIVERY);
-					freight.save();
 				}
 			} catch (final AVException e1) {
 				freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
