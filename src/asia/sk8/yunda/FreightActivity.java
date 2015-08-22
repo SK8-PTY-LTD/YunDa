@@ -208,7 +208,7 @@ public class FreightActivity extends Activity {
 					//Check 0.1 抹零
 					float roundedWeight = 0;
 					if (weight - Math.floor(weight) <= 0.1) {
-						roundedWeight = Math.round(weight + 0.4);
+						roundedWeight = (float) Math.floor(weight);
 					} else {
 						roundedWeight = weight;
 					}
@@ -229,10 +229,11 @@ public class FreightActivity extends Activity {
 						//若有体积重
 						float exceedWeight = Float.parseFloat(exceedWeightEditText.getText().toString());
 						freight.setExceedWeight(exceedWeight);
-						//Check 0.1 抹零
+						//Check 0.1 
+
 						float roundedExceedWeight = 0;
 						if (exceedWeight - Math.floor(exceedWeight) <= 0.1) {
-							roundedExceedWeight = Math.round(exceedWeight + 0.4);
+							roundedExceedWeight = (float) Math.floor(exceedWeight);
 						} else {
 							roundedExceedWeight = exceedWeight;
 						}
