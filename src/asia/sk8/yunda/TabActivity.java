@@ -239,7 +239,35 @@ public class TabActivity extends Activity implements TabListener {
 										} else if (list.size() == 1) {
 											//Do corresponding changes to FreightIn
 											final YDFreightIn freightIn = list.get(0);
-											if (freightIn.getStatus() == YDFreightIn.STATUS_MANUAL) {
+											if (freightIn.getStatus() == YDFreightIn.STATUS_CANCELLED) {
+												// 入库后长时间未认领，取消入库状态的
+												freightIn.setStatus(YDFreightIn.STATUS_ARRIVED);
+												//Show option for FreightIn
+												String[] array = new String[2];
+												array[0] = "重新入库";
+												array[1] = "取消";
+												AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
+												builder.setTitle("未认领重新入库：" + deliveryId).setItems(array,
+														new DialogInterface.OnClickListener() {
+															public void onClick(DialogInterface dialog,
+																	int position) {
+																switch (position) {
+																case 0:
+																	Intent intent = new Intent(
+																			TabActivity.this,
+																			FreightInActivity.class);
+																	//SDK Problem, use Static variable as workaround
+																	Yunda.tempObject = freightIn;
+																	//Proper way
+//																	intent.putExtra("freightIn", freightIn.toString());
+																	startActivity(intent);
+																	break;
+																default:
+																	break;
+																}
+																}
+															}).create().show();;
+											} else if (freightIn.getStatus() == YDFreightIn.STATUS_MANUAL) {
 												// 用户已自主入库
 												freightIn.setStatus(YDFreightIn.STATUS_ARRIVED);
 												//Show option for FreightIn

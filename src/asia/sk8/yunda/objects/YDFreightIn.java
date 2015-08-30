@@ -55,6 +55,8 @@ public class YDFreightIn extends AVObject {
 
 	public static int STATUS_FINISHED = 900;
 
+	public static int STATUS_CANCELLED = 990;
+
 	// ================================================================================
 	// Shelf Methods
 	// ================================================================================
