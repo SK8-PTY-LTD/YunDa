@@ -65,7 +65,7 @@ public class ViewFreightActivity extends Activity {
 		weightTextView = (TextView) this.findViewById(R.id.weightTextView);
 		requirementTextView = (TextView) this.findViewById(R.id.requirementTextView);
 		commentTextView = (TextView) this.findViewById(R.id.commentTextView);
-		confirmButton = (Button) this.findViewById(R.id.confirmButton);
+		confirmButton = (Button) this.findViewById(R.id.confirmCheckButton);
 		
 		freight = (YDFreight) Yunda.tempObject;
 		user = freight.getUser();
