@@ -125,12 +125,12 @@
     <Button
         android:id="@+id/freightRealNameButton"
         android:layout_width="wrap_content"
-        android:layout_height="30dp"
+        android:layout_height="wrap_content"
         android:layout_alignRight="@+id/freightChannelTextView"
         android:layout_below="@+id/freightChannelTextView"
         android:layout_toRightOf="@+id/TextView04"
         android:text="读取中..."
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/TextView02"
@@ -139,7 +139,7 @@
         android:layout_alignLeft="@+id/TextView04"
         android:layout_below="@+id/freightRealNameButton"
         android:layout_marginTop="6dp"
-        android:text="重量(磅)"
+        android:text="重量"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
@@ -206,29 +206,6 @@
         <requestFocus />
     </EditText>
 
-    <TextView
-        android:id="@+id/TextView01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/TextView02"
-        android:layout_below="@+id/freightWeightEditText"
-        android:text="费用明细："
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <EditText
-        android:id="@+id/freightWeightEditText"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/TextView02"
-        android:layout_toLeftOf="@+id/TextView03"
-        android:layout_toRightOf="@+id/TextView05"
-        android:ems="10"
-        android:gravity="right"
-        android:hint="0.0"
-        android:imeOptions="actionNext"
-        android:inputType="numberDecimal"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
     <EditText
         android:id="@+id/freightExceedWeightEditText"
         android:layout_width="80dp"
@@ -250,19 +227,8 @@
         android:layout_alignTop="@+id/freightExceedWeightEditText"
         android:layout_marginRight="10dp"
         android:layout_toLeftOf="@+id/freightExceedWeightEditText"
-        android:text="体积重(磅)"
+        android:text="体积重"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/freightSplitTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/freightWeightEditText"
-        android:layout_alignRight="@+id/freightWeightEditText"
-        android:layout_alignTop="@+id/TextView05"
-        android:gravity="center"
-        android:text="否"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/freightExtraWeightTextView"
@@ -310,6 +276,53 @@
         android:layout_alignRight="@+id/freightInsuranceTextView"
         android:layout_alignTop="@+id/TextView11"
         android:text="待计算"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/freightWeightEditText"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/freightYDNumberTextView"
+        android:layout_alignTop="@+id/TextView02"
+        android:layout_toLeftOf="@+id/freightOzEditText"
+        android:ems="10"
+        android:gravity="right"
+        android:hint="磅数"
+        android:imeOptions="actionNext"
+        android:inputType="numberDecimal"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <EditText
+        android:id="@+id/freightOzEditText"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/freightWeightEditText"
+        android:layout_alignBottom="@+id/freightWeightEditText"
+        android:layout_toLeftOf="@+id/TextView03"
+        android:ems="10"
+        android:gravity="right"
+        android:hint="盎司"
+        android:imeOptions="actionNext"
+        android:inputType="numberDecimal"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/TextView01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/TextView02"
+        android:layout_below="@+id/freightWeightEditText"
+        android:text="费用明细："
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/freightSplitTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/TextView05"
+        android:layout_toRightOf="@+id/TextView05"
+        android:gravity="center"
+        android:text="否"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

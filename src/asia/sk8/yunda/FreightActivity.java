@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -44,6 +45,7 @@ public class FreightActivity extends Activity {
 
 	private TextView idTextView;
 	private EditText weightEditText;
+	private EditText ozEditText;
 	private EditText exceedWeightEditText;
 	private EditText noteEditText;
 
@@ -106,6 +108,7 @@ public class FreightActivity extends Activity {
 		totalTextView = (TextView) this.findViewById(R.id.freightTotalTextView);
 		insuranceTextView = (TextView) this.findViewById(R.id.freightInsuranceTextView);
 		weightEditText = (EditText) this.findViewById(R.id.freightWeightEditText);
+		ozEditText = (EditText) this.findViewById(R.id.freightOzEditText);
 		exceedWeightEditText = (EditText) this.findViewById(R.id.freightExceedWeightEditText);
 		noteEditText = (EditText) this.findViewById(R.id.freightNoteEditText);
 		giveUpButton = (Button) this.findViewById(R.id.freightGiveUpButton);
@@ -147,7 +150,22 @@ public class FreightActivity extends Activity {
 		weightEditText.setText(Float.toString(freight.getWeight()));
 		exceedWeightEditText.setText(Float.toString(freight.getExceedWeight()));
 		noteEditText.setText(freight.getString("notes"));
-		
+
+		ozEditText.setOnFocusChangeListener(new OnFocusChangeListener() {          
+
+		        public void onFocusChange(View v, boolean hasFocus) {
+		            if (!hasFocus) {
+		            	String w = weightEditText.getText().toString();
+						if (w == null || w.length() == 0) { w = "0"; }
+						float weight = Float.parseFloat(w);
+						String o = ozEditText.getText().toString();
+						if (o == null || o.length() == 0) { o = "0"; }
+						float oz = Float.parseFloat(o);
+						float exceedWeight = weight+oz/16;
+						exceedWeightEditText.setText(""+exceedWeight);
+		            }
+		        }
+		    });
 		realNameButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -168,21 +186,18 @@ public class FreightActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
-					
-					String w = weightEditText.getText().toString();
-					if (w != null && w.length() > 0) {
-						float weight = Float.parseFloat(w);
-						if (weight != 0) {
-							freight.setFinaleight(weight);
-						} else {
-							runOnUiThread(new Runnable() {
-								public void run() {
-									Toast.makeText(FreightActivity.this, "重量不得为0", Toast.LENGTH_LONG).show();
-								}
-							});
-							return;
-						}
+
+				String w = weightEditText.getText().toString();
+				if (w == null || w.length() == 0) { w = "0"; }
+				float weight = Float.parseFloat(w);
+				String o = ozEditText.getText().toString();
+				if (o == null || o.length() == 0) { o = "0"; }
+				float oz = Float.parseFloat(o);
+					if (w != "0" || o != "0") {
+						freight.setFinaleight(weight + oz/16);
+						
 						String ew = exceedWeightEditText.getText().toString();
+						if (ew == null || ew.length() == 0) { ew = "0"; }
 						if (Float.parseFloat(ew) < Float.parseFloat(w)) {
 							Toast.makeText(FreightActivity.this, "体积重不得小于重量",
 									Toast.LENGTH_LONG).show(); 
@@ -203,8 +218,9 @@ public class FreightActivity extends Activity {
 					}
 					
 					//Calculate freight pricing.
-					float weight = Float.parseFloat(weightEditText.getText().toString());
+					weight = weight + oz/16;
 					freight.setWeight(weight);
+					
 					//Check 0.1 抹零
 					float roundedWeight = 0;
 					if (weight - Math.floor(weight) <= 0.10001) {
@@ -212,8 +228,9 @@ public class FreightActivity extends Activity {
 					} else {
 						roundedWeight = weight;
 					}
-					 
-					Toast.makeText(FreightActivity.this, "重量：" + weight + "，抹零后：" + roundedWeight, Toast.LENGTH_SHORT).show();
+
+					Toast.makeText(FreightActivity.this, "重量：" + weight + "，(包括：" + oz +"盎司)", Toast.LENGTH_SHORT).show();
+					Toast.makeText(FreightActivity.this, "抹零后：" + roundedWeight, Toast.LENGTH_SHORT).show();
 					//Check 起运磅数
 					try {
 						double startAt = channel.getDouble("startAt");

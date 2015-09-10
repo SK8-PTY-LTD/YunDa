@@ -325,7 +325,7 @@ public class TabActivity extends Activity implements TabListener {
 						} else if (list.size() == 1) {
 							final YDFreight freight = list.get(0);
 							if (freight.getStatus() == YDFreight.STATUS_INITIALIZED) {
-								// 原箱闪运 case
+								// 普通包裹 case
 								Toast.makeText(TabActivity.this, "普通包裹，待处理...",
 										Toast.LENGTH_LONG).show();
 								//Show option for Freight
@@ -368,7 +368,7 @@ public class TabActivity extends Activity implements TabListener {
 													int position) {
 												switch (position) {
 												case 0:
-													freight.setStatus(0);
+													freight.setStatus(YDFreight.STATUS_INITIALIZED);
 													freight.saveInBackground();
 													Toast.makeText(TabActivity.this, "已入库，请至网页，打印运单...",
 															Toast.LENGTH_LONG).show();
