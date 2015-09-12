@@ -39,8 +39,6 @@ public class FreightInActivity extends Activity {
 	private TextView RKTextView;
 	private EditText userIdEditText;
 	private EditText weightEditText;
-	private EditText ozEditText;
-	private EditText exceedWeightEditText;
 	private EditText noteEditText;
 
 	private Button giveUpButton;
@@ -69,10 +67,6 @@ public class FreightInActivity extends Activity {
 				.findViewById(R.id.freightInUserIdExitText);
 		weightEditText = (EditText) this
 				.findViewById(R.id.freightInWeightEditText);
-		ozEditText = (EditText) this
-				.findViewById(R.id.freightInOzEditText);
-		exceedWeightEditText = (EditText) this
-				.findViewById(R.id.freightInExceedWeightEditText);
 		noteEditText = (EditText) this
 				.findViewById(R.id.freightInNotesEditText);
 		giveUpButton = (Button) this.findViewById(R.id.freightInGiveUpButton);
@@ -80,22 +74,6 @@ public class FreightInActivity extends Activity {
 
 		idTextView.setText(freightIn.getTrackingNumber());
 		RKTextView.setText(freightIn.getString("RKNumber"));
-		
-		ozEditText.setOnFocusChangeListener(new OnFocusChangeListener() {        
-
-	        public void onFocusChange(View v, boolean hasFocus) {
-	            if (!hasFocus) {
-	            	String w = weightEditText.getText().toString();
-					if (w == null || w.length() == 0) { w = "0"; }
-					float weight = Float.parseFloat(w);
-					String o = ozEditText.getText().toString();
-					if (o == null || o.length() == 0) { o = "0"; }
-					float oz = Float.parseFloat(o);
-					float exceedWeight = weight+oz/16;
-					exceedWeightEditText.setText(""+exceedWeight);
-	            }
-	        }
-		});
 		
 		giveUpButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -108,37 +86,25 @@ public class FreightInActivity extends Activity {
 			public void onClick(View arg0) {
 
 				String w = weightEditText.getText().toString();
-				if (w == null) { w = "0"; }
-				String oz = ozEditText.getText().toString();
-				if (oz == null) { oz = "0"; }
-				if (Float.parseFloat(w) != 0 || Float.parseFloat(oz) != 0) {
-					freightIn.setWeight(Float.parseFloat(w)+Float.parseFloat(oz)/16);
+				if (w == null || w.length() == 0) { w = "0"; }
+				if (Float.parseFloat(w) != 0) {
+					freightIn.setWeight(Float.parseFloat(w));
 				} else {
 					Toast.makeText(FreightInActivity.this, "重量不得为空",
 							Toast.LENGTH_LONG).show();
 					return;
 				}
-				String ew = exceedWeightEditText.getText().toString();
-				if (ew == null) { ew = "0"; }
-				if (Float.parseFloat(ew) < Float.parseFloat(w)) {
-					Toast.makeText(FreightInActivity.this, "体积重不得小于重量",
-							Toast.LENGTH_LONG).show();
-					return;
-				} else {
-					if (ew != null && ew.length() > 0 && Float.parseFloat(ew) != 0) {
-						freightIn.setExceedWeight(Float.parseFloat(ew));
-					}
-					freightIn.setNote(noteEditText.getText().toString());
+				freightIn.setExceedWeight(0);
+				freightIn.setNote(noteEditText.getText().toString());
 
-					final String id = userIdEditText.getText().toString();
-					final String username = userNameEditText.getText().toString();
-					if (id == "" && username == "") {
-						Toast.makeText(FreightInActivity.this, "数字Id／用户名 二填写一", Toast.LENGTH_LONG).show();
-						return;
-					}
-					
-					new GenerateFreightInTask().execute();
+				final String id = userIdEditText.getText().toString();
+				final String username = userNameEditText.getText().toString();
+				if (id == "" && username == "") {
+					Toast.makeText(FreightInActivity.this, "数字Id／用户名 二填写一", Toast.LENGTH_LONG).show();
+					return;
 				}
+				
+				new GenerateFreightInTask().execute();
 			}
 		});
 		this.getActionBar().setDisplayHomeAsUpEnabled(true);

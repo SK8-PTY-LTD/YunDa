@@ -10,7 +10,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -58,7 +60,7 @@ public class FreightActivity extends Activity {
 	
 	private YDUser user;
 
-	private TextView channelTextView;
+	private Button channelButton;
 
 	private TextView totalTextView;
 	private float totalPrice = 0;
@@ -104,7 +106,7 @@ public class FreightActivity extends Activity {
 		idTextView = (TextView) this.findViewById(R.id.freightTrackingNumberTextView);
 		RKNumberTextView = (TextView) this.findViewById(R.id.freightRKNumberTextView);
 		YDNumberTextView = (TextView) this.findViewById(R.id.freightYDNumberTextView);
-		channelTextView = (TextView) this.findViewById(R.id.freightChannelTextView);
+		channelButton = (Button) this.findViewById(R.id.freightChannelButton);
 		totalTextView = (TextView) this.findViewById(R.id.freightTotalTextView);
 		insuranceTextView = (TextView) this.findViewById(R.id.freightInsuranceTextView);
 		weightEditText = (EditText) this.findViewById(R.id.freightWeightEditText);
@@ -135,14 +137,59 @@ public class FreightActivity extends Activity {
 		}
 		
 		insuranceTextView.setText(freight.getString("insurance"));
-		
-		final JSONObject channel = freight.getJSONObject("channel");
+
 		try {
-			channelTextView.setText(channel.getString("name"));
+			JSONObject channel = freight.getJSONObject("channel");
+			channelButton.setText(channel.getString("name"));
 		} catch (JSONException e1) {
 			Toast.makeText(FreightActivity.this, "未找到发货渠道！", Toast.LENGTH_LONG).show();
 			e1.printStackTrace();
 		}
+		
+		channelButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+
+				try {
+					final JSONArray channelArray = Yunda.setting.getJSONArray("channelList");
+					CharSequence[] channelNamearray = new String[channelArray.length()];
+					for (int i = 0; i < channelArray.length(); i++) {
+						JSONObject channel;
+							channel = (JSONObject) channelArray.get(i);
+							channelNamearray[i] = channel.getString("name");
+					} 
+					
+					new AlertDialog.Builder(FreightActivity.this)
+			        .setSingleChoiceItems(channelNamearray, 0, null)
+			        .setPositiveButton("确认&保存", new DialogInterface.OnClickListener() {
+			            public void onClick(DialogInterface dialog, int whichButton) {
+			                dialog.dismiss();
+			                int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
+			                try {
+								JSONObject selectedChannel = (JSONObject) channelArray.get(selectedPosition);
+								channelButton.setText(selectedChannel.getString("name"));
+								freight.put("channel", selectedChannel);
+								freight.saveInBackground();
+							    Toast.makeText(FreightActivity.this, "已保存, 请重新'计算运费'", Toast.LENGTH_SHORT).show();
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+			            }
+			        })
+			        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+			            public void onClick(DialogInterface dialog, int whichButton) {
+			                dialog.dismiss();
+			            }
+			        })
+			        .show();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+		});
 		
 		idTextView.setText(freight.getString("trackingNumber"));
 		RKNumberTextView.setText(freight.getString("RKNumber"));
@@ -159,7 +206,10 @@ public class FreightActivity extends Activity {
 						if (w == null || w.length() == 0) { w = "0"; }
 						float weight = Float.parseFloat(w);
 						String o = ozEditText.getText().toString();
-						if (o == null || o.length() == 0) { o = "0"; }
+						if (o == null || o.length() == 0) { 
+							ozEditText.setText("0");
+							o = "0"; 
+						}
 						float oz = Float.parseFloat(o);
 						float exceedWeight = weight+oz/16;
 						exceedWeightEditText.setText(""+exceedWeight);
@@ -233,6 +283,22 @@ public class FreightActivity extends Activity {
 					Toast.makeText(FreightActivity.this, "抹零后：" + roundedWeight, Toast.LENGTH_SHORT).show();
 					//Check 起运磅数
 					try {
+						JSONObject channel = freight.getJSONObject("channel");
+						//Check 是否符合Channel 要求
+						if (channel.getString("name").matches("小包裹A渠道") || channel.getString("name").matches("小包裹B渠道")) {
+				            if (weight > 6.6) {
+				            	Toast.makeText(FreightActivity.this, "小包裹A/B渠道每个包裹重量不得超过6.6磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
+				                return;
+				            }
+				        }
+						if (channel.getString("name").matches("Q渠道A") || channel.getString("name").matches("Q渠道B")) {
+				            if (weight > 10) {
+				            	Toast.makeText(FreightActivity.this, "Q渠道A/B每个包裹重量不得超过10磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
+				                return;
+				            }
+				        }
+						
+						
 						double startAt = channel.getDouble("startAt");
 						double initialPrice = channel.getDouble("initialPrice");
 						double continuePrice = channel.getDouble("continuePrice");

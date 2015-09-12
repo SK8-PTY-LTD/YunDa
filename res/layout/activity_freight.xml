@@ -91,16 +91,16 @@
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:id="@+id/freightChannelTextView"
+    <Button
+        android:id="@+id/freightChannelButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/freightYDNumberTextView"
         android:layout_alignTop="@+id/TextView10"
-        android:gravity="right"
-        android:hint="读取中..."
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_toRightOf="@+id/TextView07"
+        android:minHeight="36dp"
+        android:text="读取中..."
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:id="@+id/TextView10"
@@ -112,25 +112,16 @@
         android:text="渠道："
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <TextView
-        android:id="@+id/TextView04"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/TextView10"
-        android:layout_below="@+id/TextView10"
-        android:layout_marginTop="6dp"
-        android:text="用户名："
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
     <Button
         android:id="@+id/freightRealNameButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/freightChannelTextView"
-        android:layout_below="@+id/freightChannelTextView"
-        android:layout_toRightOf="@+id/TextView04"
+        android:layout_alignLeft="@+id/freightChannelButton"
+        android:layout_alignRight="@+id/freightChannelButton"
+        android:layout_below="@+id/freightChannelButton"
+        android:minHeight="36dp"
         android:text="读取中..."
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:id="@+id/TextView02"
@@ -324,5 +315,14 @@
         android:gravity="center"
         android:text="否"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/TextView04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/TextView10"
+        android:layout_alignTop="@+id/freightRealNameButton"
+        android:text="用户名："
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>

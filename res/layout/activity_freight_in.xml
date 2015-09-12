@@ -104,15 +104,6 @@
         android:inputType="textMultiLine" />
 
     <TextView
-        android:id="@+id/TextView04"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/freightRequestTextView"
-        android:layout_below="@+id/freightInExceedWeightEditText"
-        android:text="备注"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
         android:id="@+id/TextView05"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -143,53 +134,26 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
-        android:id="@+id/freightInExceedWeightEditText"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/TextView02"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/freightRequestTextView"
-        android:ems="10"
-        android:gravity="right"
-        android:hint="0.0"
-        android:imeOptions="actionNext"
-        android:inputType="numberDecimal"
-        android:singleLine="false" />
-
-    <EditText
-        android:id="@+id/freightInOzEditText"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/freightInWeightEditText"
-        android:layout_alignBottom="@+id/freightInWeightEditText"
-        android:layout_alignRight="@+id/freightInUserNameExitText"
-        android:ems="10"
-        android:gravity="right"
-        android:hint="盎司"
-        android:imeOptions="actionNext"
-        android:inputType="numberDecimal"
-        android:singleLine="false" />
-
-    <TextView
-        android:id="@+id/freightRequestTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/freightInWeightEditText"
-        android:text="体积重"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <EditText
         android:id="@+id/freightInWeightEditText"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/freightInUserNameExitText"
+        android:layout_alignRight="@+id/freightInUserNameExitText"
         android:layout_alignTop="@+id/TextView02"
-        android:layout_toLeftOf="@+id/freightInOzEditText"
         android:ems="10"
         android:gravity="right"
         android:hint="磅数"
         android:imeOptions="actionNext"
         android:inputType="numberDecimal"
         android:singleLine="false" />
+
+    <TextView
+        android:id="@+id/TextView04"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/TextView02"
+        android:layout_below="@+id/freightInWeightEditText"
+        android:text="备注"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>
