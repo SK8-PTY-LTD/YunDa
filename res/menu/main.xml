@@ -2,4 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="asia.sk8.yunda.MainActivity" >
 
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:onClick="logout"
+        android:title="登出"/>
+    
 </menu>

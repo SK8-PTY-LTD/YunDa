@@ -20,6 +20,7 @@ import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 import asia.sk8.Yunda;
 import asia.sk8.yunda.objects.YDFreight;
@@ -27,6 +28,7 @@ import asia.sk8.yunda.objects.YDFreightIn;
 
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
 
 public class TabActivity extends Activity implements TabListener {
@@ -535,6 +537,20 @@ public class TabActivity extends Activity implements TabListener {
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public void logout(MenuItem item) {
+		AVUser.logOut();
+		Intent intent = new Intent(this, LoginActivity.class);
+		this.startActivity(intent);
+		this.finish();
+	}
+	
+	public void logOut(View view) {
+		AVUser.logOut();
+		Intent intent = new Intent(this, LoginActivity.class);
+		this.startActivity(intent);
+		this.finish();
 	}
 
 }

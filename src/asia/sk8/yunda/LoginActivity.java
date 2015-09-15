@@ -16,8 +16,15 @@ public class LoginActivity extends Activity {
     
       
     public void onCreate(Bundle savedInstanceState) {  
-        super.onCreate(savedInstanceState);  
-       setContentView(R.layout.activity_login);  
+       super.onCreate(savedInstanceState);
+       setContentView(R.layout.activity_login);
+       
+       //Check currentUser 
+       if (AVUser.getCurrentUser() != null) {
+    	   Intent intent = new Intent(this, TabActivity.class);
+    	   this.startActivity(intent);
+    	   this.finish();
+       }
        
        final EditText userId = (EditText)findViewById(R.id.userEditText);
        final EditText passWord = (EditText)findViewById(R.id.passWordEditText);
@@ -26,9 +33,26 @@ public class LoginActivity extends Activity {
            @SuppressWarnings({ "unchecked", "rawtypes" })
 		@Override
            public void onClick(View v) {
+        	   
                // TODO Auto-generated method stub
         	   String id = userId.getText().toString().trim();
         	   String pass = passWord.getText().toString().trim();
+
+        	   if (id.matches("nqw0129@126.com")) {
+        		   Toast.makeText(LoginActivity.this, "欢迎回来，超级管理员", Toast.LENGTH_LONG).show();
+        	   } else if (id.matches("2300145467@qq.com")) {
+        		   Toast.makeText(LoginActivity.this, "欢迎回来，超级管理员", Toast.LENGTH_LONG).show();
+        	   } else if (id.matches("2973508779@qq.com")) {
+        		   Toast.makeText(LoginActivity.this, "欢迎回来，管理员", Toast.LENGTH_LONG).show();
+        	   } else if (id.matches("3327945015@qq.com")) {
+        		   Toast.makeText(LoginActivity.this, "欢迎回来，管理员", Toast.LENGTH_LONG).show();
+        	   } else if (id.matches("3060002587@qq.com")) {
+        		   Toast.makeText(LoginActivity.this, "欢迎回来，管理员", Toast.LENGTH_LONG).show();
+        	   } else {
+        		   Toast.makeText(LoginActivity.this, "非管理员邮箱，无权登录", Toast.LENGTH_LONG).show();
+        		   return;
+        	   }
+        	   
         	   AVUser.logInInBackground(id, pass, new LogInCallback() {
         		    public void done(AVUser user, AVException e) {
         		        if (user != null) {

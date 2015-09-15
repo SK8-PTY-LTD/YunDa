@@ -48,10 +48,11 @@ public final class R {
         public static final int TextView11=0x7f0a000f;
         public static final int TextView12=0x7f0a0013;
         public static final int YDNumberTextView=0x7f0a0036;
-        public static final int action_settings=0x7f0a0052;
+        public static final int action_settings=0x7f0a0053;
         public static final int assigneeTextView=0x7f0a0046;
         public static final int assignerEditText=0x7f0a0045;
         public static final int assignerTextView=0x7f0a0044;
+        public static final int button1=0x7f0a0052;
         public static final int checked=0x7f0a004d;
         public static final int commentTextView=0x7f0a0041;
         public static final int confirmCheckButton=0x7f0a003d;
