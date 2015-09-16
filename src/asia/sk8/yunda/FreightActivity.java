@@ -545,7 +545,7 @@ public class FreightActivity extends Activity {
 							freight.addUnique("statusGroup", 495);
 							freight.save();
 						}
-						// 检查并扣除分包
+						// 检查并扣除精确分包
 						if (statusString.contains("210") && !statusString.contains("215")) {
 							HashMap<String, Object> params1 = new HashMap<String, Object>();
 							//Check if split is already paid
@@ -561,7 +561,7 @@ public class FreightActivity extends Activity {
 								//Split not paid
 								params1.put("userId", user.getObjectId());
 								params1.put("amount", Yunda.setting.getNumber("splitPackageCharge"));
-								params1.put("notes", "分包收费，运单号：" + freight.getYDNumber());
+								params1.put("notes", "精确分包收费，运单号：" + freight.getYDNumber());
 								params1.put("YDNumber", freight.getYDNumber());
 								params1.put("RKNumber", freight.getRKNumber());
 								params1.put("status", 310);
@@ -576,7 +576,7 @@ public class FreightActivity extends Activity {
 
 								runOnUiThread(new Runnable() {
 									public void run() {
-										Toast.makeText(FreightActivity.this, "检测到分包，已一次性扣款成功！", Toast.LENGTH_LONG).show();
+										Toast.makeText(FreightActivity.this, "检测到精确分包，已一次性扣款成功！", Toast.LENGTH_LONG).show();
 									}
 								});
 							}
