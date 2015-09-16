@@ -1,7 +1,4 @@
-<snippet>
-<content><![CDATA[
-# Yunda Android
-
+ # Yunda Android
 Yunda Andorid is the Android client for [Yunda](http://www.yunda.com). This Android App is developed by [SK8 Tech](http://sk8techs.com)
 
 ## Installation
@@ -16,12 +13,12 @@ This class should work on all major Andoird Systems.
 3. Commit your changes: `git commit -am 'Add some feature'`
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request :D
+
 ## History
 This UI design and Android development is done by [SK8 Tech](http://sk8techs.com)
+
 ## Credits
 This UI design and Android development is done by [SK8 Tech](http://sk8techs.com)
+
 ## License
 This UI design and Android development is done by [SK8 Tech](http://sk8techs.com) Please contact [@SK8Techs](http://sk8techs.com/contact/) for more information
-]]></content>
-<tabTrigger>readme</tabTrigger>
-</snippet>
