@@ -37,6 +37,7 @@ import com.avos.avoscloud.AVCloud;
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FunctionCallback;
 import com.avos.avoscloud.GetCallback;
 import com.avos.avoscloud.RefreshCallback;
@@ -120,6 +121,24 @@ public class FreightActivity extends Activity {
 		calculateButton = (Button) this.findViewById(R.id.freightCalculateButton);
 
 		JSONArray statusGroup = freight.getJSONArray("statusGroup");
+		
+		String id = AVUser.getCurrentUser().getEmail();
+
+ 	   if (id.matches("nqw0129@126.com")) {
+ 		   this.getActionBar().setTitle("欢迎回来，超级管理员");
+ 	   } else if (id.matches("2300145467@qq.com")) {
+ 		   this.getActionBar().setTitle("欢迎回来，超级管理员");
+ 	   } else if (id.matches("2973508779@qq.com")) {
+ 		   this.getActionBar().setTitle("欢迎，管理员(不可扣款)");
+ 	   } else if (id.matches("3327945015@qq.com")) {
+ 		   this.getActionBar().setTitle("欢迎，管理员(不可扣款)");
+ 	   } else if (id.matches("3060002587@qq.com")) {
+ 		   this.getActionBar().setTitle("欢迎，管理员(不可扣款)");
+ 	   } else {
+ 		   Toast.makeText(this, "非管理员邮箱，无权登录", Toast.LENGTH_LONG).show();
+ 		   this.finish();
+ 		   return;
+ 	   }
 		
 		splitTextView = (TextView) this.findViewById(R.id.freightSplitTextView);
 		extraWeightTextView = (TextView) this.findViewById(R.id.freightExtraWeightTextView);
