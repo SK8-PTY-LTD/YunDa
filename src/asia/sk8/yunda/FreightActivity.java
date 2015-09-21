@@ -129,11 +129,11 @@ public class FreightActivity extends Activity {
  	   } else if (id.matches("2300145467@qq.com")) {
  		   this.getActionBar().setTitle("欢迎回来，超级管理员");
  	   } else if (id.matches("2973508779@qq.com")) {
- 		   this.getActionBar().setTitle("欢迎，管理员(不可扣款)");
+ 		   this.getActionBar().setTitle("欢迎，管理员");
  	   } else if (id.matches("3327945015@qq.com")) {
- 		   this.getActionBar().setTitle("欢迎，管理员(不可扣款)");
+ 		   this.getActionBar().setTitle("欢迎，管理员");
  	   } else if (id.matches("3060002587@qq.com")) {
- 		   this.getActionBar().setTitle("欢迎，管理员(不可扣款)");
+ 		   this.getActionBar().setTitle("欢迎，管理员");
  	   } else {
  		   Toast.makeText(this, "非管理员邮箱，无权登录", Toast.LENGTH_LONG).show();
  		   this.finish();
@@ -442,6 +442,8 @@ public class FreightActivity extends Activity {
 
 			@Override
 			public void onClick(View arg0) {
+				
+				String id = AVUser.getCurrentUser().getEmail();
 					
 					String w = weightEditText.getText().toString();
 					if (w != null && w.length() > 0) {
@@ -475,7 +477,32 @@ public class FreightActivity extends Activity {
 					return;
 				} else {
 					freight.setStatus(YDFreight.STATUS_PENDING_DELIVERY);
-					new SaveFreightTask().execute();
+					if (id.matches("nqw0129@126.com")) {
+						//超级管理员，Proceed
+						new SaveFreightTask().execute();
+					} else if (id.matches("2300145467@qq.com")) {
+						//超级管理员，Proceed
+						new SaveFreightTask().execute();
+					} else if (id.matches("2973508779@qq.com")) {
+						//普通管理员，无权扣款
+				 		   Toast.makeText(FreightActivity.this, "普通管理员，无权扣款。", Toast.LENGTH_LONG).show();
+				 		   freight.saveInBackground();
+				 		   return;
+					} else if (id.matches("3327945015@qq.com")) {
+						//普通管理员，无权扣款
+				 		   Toast.makeText(FreightActivity.this, "普通管理员，无权扣款。", Toast.LENGTH_LONG).show();
+				 		   freight.saveInBackground();
+				 		   return;
+					} else if (id.matches("3060002587@qq.com")) {
+						//普通管理员，无权扣款
+				 		   Toast.makeText(FreightActivity.this, "普通管理员，无权扣款。", Toast.LENGTH_LONG).show();
+				 		   freight.saveInBackground();
+				 		   return;
+					} else {
+			 		   Toast.makeText(FreightActivity.this, "非管理员邮箱，无权登录", Toast.LENGTH_LONG).show();
+			 		   FreightActivity.this.finish();
+			 		   return;
+					}
 				}
 
 			}
