@@ -2,6 +2,7 @@ package asia.sk8.yunda;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -477,6 +478,25 @@ public class FreightActivity extends Activity {
 					return;
 				} else {
 					freight.setStatus(YDFreight.STATUS_PENDING_DELIVERY);
+					JSONObject channel = freight.getJSONObject("channel");
+					//Check 是否符合Channel 要求
+					try {
+						if (channel.getString("name").matches("小包裹A渠道") || channel.getString("name").matches("小包裹B渠道")) {
+						    if (freight.getFinalWeight() > 6.6) {
+						    	Toast.makeText(FreightActivity.this, "小包裹A/B渠道每个包裹重量不得超过6.6磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
+						        return;
+						    }
+						}
+						if (channel.getString("name").matches("Q渠道A") || channel.getString("name").matches("Q渠道B")) {
+				            if (freight.getFinalWeight() > 10) {
+				            	Toast.makeText(FreightActivity.this, "Q渠道A/B每个包裹重量不得超过10磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
+				                return;
+				            }
+				        }
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					if (id.matches("nqw0129@126.com")) {
 						//超级管理员，Proceed
 						new SaveFreightTask().execute();
@@ -564,7 +584,8 @@ public class FreightActivity extends Activity {
 		protected Void doInBackground(Void... param) {
 			
 			try {
-				
+				Date currentDate = new Date();
+				freight.put("operateDate", currentDate);
 				if (freight.getStatus() == YDFreight.STATUS_PENDING_FINISHED) {
 					// 发货失败
 					freight.save();

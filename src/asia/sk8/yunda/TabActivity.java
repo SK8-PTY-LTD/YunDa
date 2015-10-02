@@ -187,7 +187,6 @@ public class TabActivity extends Activity implements TabListener {
 								@Override
 								public void done(List<YDFreightIn> list,
 										AVException e) {
-									Log.d("TEST", "CALLED");
 									if (e != null) {
 										Toast.makeText(TabActivity.this,
 												"错误；" + e.getLocalizedMessage(),
@@ -313,6 +312,15 @@ public class TabActivity extends Activity implements TabListener {
 												Toast.makeText(TabActivity.this,
 														"包裹已入库，用户已确认入库",
 														Toast.LENGTH_LONG).show();
+											} else if (freightIn.getStatus() == YDFreightIn.STATUS_FINISHED) {
+												Toast.makeText(TabActivity.this,
+														"包裹已入库，用户已已生成运单，请 “打印运单“ ",
+														Toast.LENGTH_LONG).show();
+											} else {
+												Toast.makeText(TabActivity.this,
+														"错误；无效状态 包裹状态 详情垂询 技术",
+														Toast.LENGTH_LONG).show();
+//												finish();
 											}
 										} else {
 											Toast.makeText(TabActivity.this,
