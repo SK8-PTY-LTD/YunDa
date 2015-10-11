@@ -1,6 +1,7 @@
 package asia.sk8.yunda;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -30,6 +31,7 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.AVUser;
 import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.SaveCallback;
 
 public class TabActivity extends Activity implements TabListener {
 	public static int counter;
@@ -142,6 +144,7 @@ public class TabActivity extends Activity implements TabListener {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		logOut(null);
 		return super.onOptionsItemSelected(item);
 	}
 	
@@ -164,7 +167,7 @@ public class TabActivity extends Activity implements TabListener {
 
 			AVQuery<YDFreight> mainQuery = AVQuery.or(queries);
 			mainQuery.include("user");
-			
+			mainQuery.include("freightIn");
 			mainQuery.findInBackground(new FindCallback<YDFreight>() {
 
 				@Override
@@ -365,29 +368,44 @@ public class TabActivity extends Activity implements TabListener {
 											}).create().show();;
 							} else if (freight.getStatus() == YDFreight.STATUS_SPEED_MANUAL) {
 								// 原箱闪运 case
-								Toast.makeText(TabActivity.this, "原箱闪运，待处理...",
-										Toast.LENGTH_LONG).show();
-								//Show option for Freight
-								String[] array = new String[2];
-								array[0] = "打印运单";
-								array[1] = "取消";
-								AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
-								builder.setTitle("原箱闪运：" + deliveryId).setItems(array,
-										new DialogInterface.OnClickListener() {
-											public void onClick(DialogInterface dialog,
-													int position) {
-												switch (position) {
-												case 0:
-													freight.setStatus(YDFreight.STATUS_INITIALIZED);
-													freight.saveInBackground();
-													Toast.makeText(TabActivity.this, "已入库，请至网页，打印运单...",
-															Toast.LENGTH_LONG).show();
-													break;
-												default:
-													break;
-												}
-												}
-											}).create().show();;
+								Toast.makeText(TabActivity.this, "原箱闪运，入库中...",
+										Toast.LENGTH_SHORT).show();
+								YDFreightIn freightIn = freight.getFreightIn();
+								Date currentDate = new Date();
+								freightIn.put("receivedAt", currentDate);
+								freightIn.saveInBackground(new SaveCallback() {
+									@Override
+									public void done(AVException e) {
+										if (e != null) {
+											Toast.makeText(TabActivity.this, "原箱闪运，入库失败...，请重新扫描",
+													Toast.LENGTH_LONG).show();
+										} else {
+											Toast.makeText(TabActivity.this, "原箱已入库，操作中...",
+													Toast.LENGTH_LONG).show();
+											//Show option for Freight
+											String[] array = new String[2];
+											array[0] = "打印运单";
+											array[1] = "取消";
+											AlertDialog.Builder builder = new AlertDialog.Builder(TabActivity.this);
+											builder.setTitle("原箱闪运：" + deliveryId).setItems(array,
+													new DialogInterface.OnClickListener() {
+														public void onClick(DialogInterface dialog,
+																int position) {
+															switch (position) {
+															case 0:
+																freight.setStatus(YDFreight.STATUS_INITIALIZED);
+																freight.saveInBackground();
+																Toast.makeText(TabActivity.this, "已入库，请至网页，打印运单...",
+																		Toast.LENGTH_LONG).show();
+																break;
+															default:
+																break;
+															}
+															}
+														}).create().show();;
+										}
+									}
+								});
 							} else if (freight.getStatus() == YDFreight.STATUS_PENDING_FINISHED) {
 								//先前扣款失败
 								Toast.makeText(TabActivity.this, "重新发货中...",
@@ -545,13 +563,6 @@ public class TabActivity extends Activity implements TabListener {
 	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 		// TODO Auto-generated method stub
 
-	}
-	
-	public void logout(MenuItem item) {
-		AVUser.logOut();
-		Intent intent = new Intent(this, LoginActivity.class);
-		this.startActivity(intent);
-		this.finish();
 	}
 	
 	public void logOut(View view) {

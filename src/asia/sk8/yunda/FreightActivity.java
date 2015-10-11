@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -385,7 +386,6 @@ public class FreightActivity extends Activity {
 						if (totalPrice * 100 > user.getBalance()) {
 							Toast.makeText(FreightActivity.this, "用户余额不足！请点击“发货失败”", Toast.LENGTH_LONG).show();
 						}
-						
 						totalTextView.setText("USD$" + totalPrice);
 					} catch (JSONException e1) {
 						Toast.makeText(FreightActivity.this, "未找到发货渠道！", Toast.LENGTH_LONG).show();
@@ -532,7 +532,7 @@ public class FreightActivity extends Activity {
 	
 	private float round(float d, int decimalPlace) {
         BigDecimal bd = new BigDecimal(Float.toString(d));
-        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);       
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_CEILING);       
         return bd.floatValue();
     }
 
@@ -603,7 +603,7 @@ public class FreightActivity extends Activity {
 							//Meaning delivery is not charged yet
 							HashMap<String, Object> params = new HashMap<String, Object>();
 							params.put("userId", user.getObjectId());
-							params.put("amount", deliveryPrice + additionalPrice + insurance);
+							params.put("amount", round(deliveryPrice + additionalPrice + insurance, 2));
 							params.put("notes", "运单号：" + freight.getYDNumber() + "，运费：" + String.format("%.02f", deliveryPrice) + "，体积重：" + String.format("%.02f", additionalPrice) + "，保价：" + String.format("%.02f", insurance));
 							params.put("YDNumber", freight.getYDNumber());
 							params.put("RKNumber", freight.getRKNumber());
