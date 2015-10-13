@@ -290,7 +290,7 @@ public class FreightActivity extends Activity {
 					
 					//Calculate freight pricing.
 					weight = weight + oz/16;
-					freight.setWeight(weight);
+//					freight.setWeight(weight);
 					
 					//Check 0.1 抹零
 					float roundedWeight = 0;
@@ -650,7 +650,6 @@ public class FreightActivity extends Activity {
 						}
 						// 检查并扣除加固费用
 						if (statusString.contains("230") && !statusString.contains("235")) {
-
 							HashMap<String, Object> params2 = new HashMap<String, Object>();
 							params2.put("userId", user.getObjectId());
 							params2.put("amount", extraPackageCost);
@@ -661,7 +660,6 @@ public class FreightActivity extends Activity {
 							AVCloud.callFunction("chargingUserWithoutReward", params2);
 							freight.addUnique("statusGroup", 235);
 							freight.save();
-							
 						}
 
 						freight.setStatus(YDFreight.STATUS_PENDING_DELIVERY);
