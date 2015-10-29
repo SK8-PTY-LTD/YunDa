@@ -186,6 +186,7 @@ public class TabActivity extends Activity implements TabListener {
 							AVQuery<YDFreightIn> query = YDFreightIn
 									.getQuery(YDFreightIn.class);
 							query.whereEqualTo("trackingNumber", deliveryId);
+							query.include("user");
 							query.findInBackground(new FindCallback<YDFreightIn>() {
 								@Override
 								public void done(List<YDFreightIn> list,
@@ -262,6 +263,7 @@ public class TabActivity extends Activity implements TabListener {
 																			FreightInActivity.class);
 																	//SDK Problem, use Static variable as workaround
 																	Yunda.tempObject = freightIn;
+																	intent.putExtra("userId", freightIn.getUser().getObjectId());
 																	//Proper way
 //																	intent.putExtra("freightIn", freightIn.toString());
 																	startActivity(intent);

@@ -17,6 +17,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -173,12 +174,18 @@ public class FreightActivity extends Activity {
 			public void onClick(View arg0) {
 
 				try {
-					final JSONArray channelArray = Yunda.setting.getJSONArray("channelList");
+					final JSONArray channelArray = Yunda.setting.getJSONArray("pricing");
 					CharSequence[] channelNamearray = new String[channelArray.length()];
 					for (int i = 0; i < channelArray.length(); i++) {
-						JSONObject channel;
-							channel = (JSONObject) channelArray.get(i);
+						String deviceVersion = Build.VERSION.RELEASE;
+						Log.d("VERSION: ", deviceVersion);
+						if (deviceVersion.startsWith("4.0.")) {
+							HashMap<String, Object> channel = (HashMap<String, Object>) channelArray.get(i);
+							channelNamearray[i] = (String) channel.get("name");
+						} else {
+							JSONObject channel = (JSONObject) channelArray.get(i);
 							channelNamearray[i] = channel.getString("name");
+						}
 					} 
 					
 					new AlertDialog.Builder(FreightActivity.this)
@@ -188,9 +195,17 @@ public class FreightActivity extends Activity {
 			                dialog.dismiss();
 			                int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
 			                try {
-								JSONObject selectedChannel = (JSONObject) channelArray.get(selectedPosition);
-								channelButton.setText(selectedChannel.getString("name"));
-								freight.put("channel", selectedChannel);
+								String deviceVersion = Build.VERSION.RELEASE;
+								Log.d("VERSION: ", deviceVersion);
+								if (deviceVersion.startsWith("4.0.")) {
+									HashMap<String, Object> selectedChannel = (HashMap<String, Object>) channelArray.get(selectedPosition);
+									channelButton.setText((String)selectedChannel.get("name"));
+									freight.put("channel", selectedChannel);
+								} else {
+									JSONObject selectedChannel = (JSONObject) channelArray.get(selectedPosition);
+									channelButton.setText(selectedChannel.getString("name"));
+									freight.put("channel", selectedChannel);
+								}
 								freight.saveInBackground();
 							    Toast.makeText(FreightActivity.this, "已保存, 请重新'计算运费'", Toast.LENGTH_SHORT).show();
 							} catch (JSONException e) {
@@ -207,6 +222,7 @@ public class FreightActivity extends Activity {
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					Toast.makeText(FreightActivity.this, "渠道过滤错误：" + e.getStackTrace(), Toast.LENGTH_LONG).show();
 				}
 			}
 			
@@ -303,26 +319,50 @@ public class FreightActivity extends Activity {
 					Toast.makeText(FreightActivity.this, "重量：" + weight + "，(包括：" + oz +"盎司)", Toast.LENGTH_SHORT).show();
 					Toast.makeText(FreightActivity.this, "抹零后：" + roundedWeight, Toast.LENGTH_SHORT).show();
 					//Check 起运磅数
+					double startAt = 0.0d;
+					double initialPrice = 0.0d; 
+					double continuePrice = 0.0d; 
+					
 					try {
-						JSONObject channel = freight.getJSONObject("channel");
-						//Check 是否符合Channel 要求
-						if (channel.getString("name").matches("小包裹A渠道") || channel.getString("name").matches("小包裹B渠道")) {
-				            if (weight > 6.6) {
-				            	Toast.makeText(FreightActivity.this, "小包裹A/B渠道每个包裹重量不得超过6.6磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
-				                return;
-				            }
-				        }
-						if (channel.getString("name").matches("Q渠道A") || channel.getString("name").matches("Q渠道B")) {
-				            if (weight > 10) {
-				            	Toast.makeText(FreightActivity.this, "Q渠道A/B每个包裹重量不得超过10磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
-				                return;
-				            }
-				        }
-						
-						
-						double startAt = channel.getDouble("startAt");
-						double initialPrice = channel.getDouble("initialPrice");
-						double continuePrice = channel.getDouble("continuePrice");
+						String deviceVersion = Build.VERSION.RELEASE;
+						Log.d("VERSION: ", deviceVersion);
+						// if (deviceVersion.startsWith("4.0.")) {
+						// 	HashMap<String, Object> channel = (HashMap<String, Object>) freight.get("channel");
+						// 	//Check 是否符合Channel 要求
+						// 	if (((String)channel.get("name")).matches("小包裹A渠道") || ((String)channel.get("name")).matches("小包裹B渠道")) {
+					 //            if (weight > 6.6) {
+					 //            	Toast.makeText(FreightActivity.this, "小包裹A/B渠道每个包裹重量不得超过6.6磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
+					 //                return;
+					 //            }
+					 //        }
+						// 	if (((String)channel.get("name")).matches("Q渠道A") || ((String)channel.get("name")).matches("Q渠道B")) {
+					 //            if (weight > 10) {
+					 //            	Toast.makeText(FreightActivity.this, "Q渠道A/B每个包裹重量不得超过10磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
+					 //                return;
+					 //            }
+					 //        }
+						// 	startAt = (Double)channel.get("startAt");
+						// 	initialPrice = (Double)channel.get("initialPrice");
+						// 	continuePrice = (Double)channel.get("continuePrice");
+						// } else {
+							JSONObject channel = freight.getJSONObject("channel");
+							//Check 是否符合Channel 要求
+							if (channel.getString("name").matches("小包裹A渠道") || channel.getString("name").matches("小包裹B渠道")) {
+					            if (weight > 6.6) {
+					            	Toast.makeText(FreightActivity.this, "小包裹A/B渠道每个包裹重量不得超过6.6磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
+					                return;
+					            }
+					        }
+							if (channel.getString("name").matches("Q渠道A") || channel.getString("name").matches("Q渠道B")) {
+					            if (weight > 10) {
+					            	Toast.makeText(FreightActivity.this, "Q渠道A/B每个包裹重量不得超过10磅，请使用其它渠道", Toast.LENGTH_LONG).show();;
+					                return;
+					            }
+					        }
+							startAt = channel.getDouble("startAt");
+							initialPrice = channel.getDouble("initAt");
+							continuePrice = channel.getDouble("contAt");
+						// }
 						if (roundedWeight < startAt) {
 							roundedWeight = (float) startAt;
 						}
@@ -667,6 +707,7 @@ public class FreightActivity extends Activity {
 					}
 				}
 			} catch (final AVException e1) {
+				e1.printStackTrace();
 				freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
 				freight.saveInBackground();
 				runOnUiThread(new Runnable() {

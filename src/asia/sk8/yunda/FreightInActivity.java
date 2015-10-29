@@ -53,7 +53,7 @@ public class FreightInActivity extends Activity {
 		setContentView(R.layout.activity_freight_in);
 
 		Intent intent = this.getIntent();
-		final String data = intent.getStringExtra("freightIn");
+		final String userId = intent.getStringExtra("userId");
 
 		freightIn = (YDFreightIn) Yunda.tempObject;
 
@@ -74,6 +74,8 @@ public class FreightInActivity extends Activity {
 
 		idTextView.setText(freightIn.getTrackingNumber());
 		RKTextView.setText(freightIn.getString("RKNumber"));
+		
+		this.userIdEditText.setText(userId);
 		
 		giveUpButton.setOnClickListener(new OnClickListener() {
 			@Override

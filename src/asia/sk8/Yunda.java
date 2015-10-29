@@ -1,6 +1,11 @@
 package asia.sk8;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Application;
+import android.util.Log;
 import android.widget.Toast;
 import asia.sk8.yunda.FreightInActivity;
 import asia.sk8.yunda.objects.YDAddress;
@@ -50,6 +55,9 @@ public class Yunda extends Application {
 					throw new RuntimeException("下载系统设置文件错误 " + e.getLocalizedMessage());
 				} else {
 					setting = s;
+					Toast.makeText(Yunda.this,
+							"亲，渠道已更新，嘿嘿",
+							Toast.LENGTH_LONG).show();
 				}
 				
 			}
