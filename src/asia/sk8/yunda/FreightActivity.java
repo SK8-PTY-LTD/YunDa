@@ -77,11 +77,11 @@ public class FreightActivity extends Activity {
 
 	private TextView YDNumberTextView;
 
-	private float deliveryPriceInCent = 0;
-	private float additionalPriceInCent = 0;
-	private float insuranceInCent = 0;
-	private float splitInCent = 0;
-	private float extraPackageCostInCent = 0;
+	private int deliveryPriceInCent = 0;
+	private int additionalPriceInCent = 0;
+	private int insuranceInCent = 0;
+	private int splitInCent = 0;
+	private int extraPackageCostInCent = 0;
 
 	private TextView splitTextView;
 
@@ -314,7 +314,7 @@ public class FreightActivity extends Activity {
 					
 					//Check 0.1 抹零
 					float roundedWeight = 0;
-					if (weight - Math.floor(weight) <= 0.10001) {
+					if (weight - Math.floor(weight) <= 0.20001) {
 						roundedWeight = (float) Math.floor(weight);
 					} else {
 						roundedWeight = weight;
@@ -718,7 +718,8 @@ public class FreightActivity extends Activity {
 							//Meaning delivery is not charged yet
 							HashMap<String, Object> params = new HashMap<String, Object>();
 							params.put("userId", user.getObjectId());
-							params.put("amount", (deliveryPriceInCent +  additionalPriceInCent + insuranceInCent)/100.00f);
+							double roundOff = (deliveryPriceInCent +  additionalPriceInCent + insuranceInCent)/ 100.0;
+							params.put("amount", roundOff);
 							params.put("notes", "运单号：" + freight.getYDNumber() + "，运费：" + String.format("%.02f", deliveryPriceInCent/100.00f) + "，体积重：" + String.format("%.02f", additionalPriceInCent/100.00f) + "，保价：" + String.format("%.02f", insuranceInCent/100.00f));
 							params.put("YDNumber", freight.getYDNumber());
 							params.put("RKNumber", freight.getRKNumber());
@@ -759,7 +760,8 @@ public class FreightActivity extends Activity {
 							} else {
 								//Split not paid
 								params1.put("userId", user.getObjectId());
-								params1.put("amount", splitInCent/100.00f);
+								double roundOff = splitInCent/ 100.0;
+								params1.put("amount", roundOff);
 								params1.put("notes", "精确分包收费，运单号：" + freight.getYDNumber());
 								params1.put("YDNumber", freight.getYDNumber());
 								params1.put("RKNumber", freight.getRKNumber());
@@ -806,7 +808,8 @@ public class FreightActivity extends Activity {
 						if (statusString.contains("230") && !statusString.contains("235")) {
 							HashMap<String, Object> params2 = new HashMap<String, Object>();
 							params2.put("userId", user.getObjectId());
-							params2.put("amount", extraPackageCostInCent/100.00f);
+							double roundOff = extraPackageCostInCent/ 100.0;
+							params2.put("amount", roundOff);
 							params2.put("notes", "加固收费，运单号：" + freight.getYDNumber());
 							params2.put("YDNumber", freight.getYDNumber());
 							params2.put("RKNumber", freight.getRKNumber());
