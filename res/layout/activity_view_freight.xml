@@ -190,6 +190,7 @@
         android:layout_alignLeft="@+id/emailTextView"
         android:layout_alignParentRight="true"
         android:layout_toEndOf="@+id/textView6"
+        android:layout_toRightOf="@+id/textView6"
         android:hint="Healhty Care" />
 
     <TextView
@@ -200,6 +201,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/textView9"
         android:layout_toEndOf="@+id/textView9"
+        android:layout_toRightOf="@+id/textView9"
         android:hint="暂无备注" />
 
 </RelativeLayout>
