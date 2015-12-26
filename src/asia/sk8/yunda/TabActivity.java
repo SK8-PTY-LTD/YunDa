@@ -263,7 +263,6 @@ public class TabActivity extends Activity implements TabListener {
 																			FreightInActivity.class);
 																	//SDK Problem, use Static variable as workaround
 																	Yunda.tempObject = freightIn;
-																	intent.putExtra("userId", freightIn.getUser().getObjectId());
 																	//Proper way
 //																	intent.putExtra("freightIn", freightIn.toString());
 																	startActivity(intent);
@@ -292,6 +291,8 @@ public class TabActivity extends Activity implements TabListener {
 																			FreightInActivity.class);
 																	//SDK Problem, use Static variable as workaround
 																	Yunda.tempObject = freightIn;
+																	intent.putExtra("stringId", freightIn.getUser().getString("stringId"));
+																	intent.putExtra("numberId", freightIn.getUser().getString("numberId"));
 																	//Proper way
 //																	intent.putExtra("freightIn", freightIn.toString());
 																	startActivity(intent);

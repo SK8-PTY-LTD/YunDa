@@ -521,12 +521,9 @@ public class FreightActivity extends Activity {
 			}
 		});
 		confirmButton.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View arg0) {
-				
 				String id = AVUser.getCurrentUser().getEmail();
-					
 					String w = weightEditText.getText().toString();
 					if (w != null && w.length() > 0) {
 						float weight = Float.parseFloat(w);
@@ -730,7 +727,27 @@ public class FreightActivity extends Activity {
 							} catch (AVException e) {
 								runOnUiThread(new Runnable() {
 									public void run() {
-										Toast.makeText(FreightActivity.this, "扣‘运费’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+										freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
+										try {
+											freight.save();
+											Toast.makeText(FreightActivity.this, "扣‘运费’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+										} catch (AVException e) {
+											try {
+												freight.save();
+												Toast.makeText(FreightActivity.this, "扣‘运费’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+											} catch (AVException e1) {
+												try {
+													freight.save();
+													Toast.makeText(FreightActivity.this, "扣‘运费’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+												} catch (AVException e2) {
+													runOnUiThread(new Runnable() {
+														public void run() {
+															Toast.makeText(FreightActivity.this, "运单保存失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+														}
+													});
+												}
+											}
+										}
 									}
 								});
 							}
@@ -770,9 +787,29 @@ public class FreightActivity extends Activity {
 									AVCloud.callFunction("chargingUserWithoutReward", params1);
 									freight.addUnique("statusGroup", 215);
 								} catch (AVException e) {
+									freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
 									runOnUiThread(new Runnable() {
 										public void run() {
-											Toast.makeText(FreightActivity.this, "扣‘精分’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+											try {
+												freight.save();
+												Toast.makeText(FreightActivity.this, "扣‘精分’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+											} catch (AVException e) {
+												try {
+													freight.save();
+													Toast.makeText(FreightActivity.this, "扣‘精分’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+												} catch (AVException e1) {
+													try {
+														freight.save();
+														Toast.makeText(FreightActivity.this, "扣‘精分’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+													} catch (AVException e2) {
+														runOnUiThread(new Runnable() {
+															public void run() {
+																Toast.makeText(FreightActivity.this, "运单保存失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+															}
+														});
+													}
+												}
+											}
 										}
 									});
 								}
@@ -788,9 +825,29 @@ public class FreightActivity extends Activity {
 										try {
 											AVObject.saveAll(list);
 										} catch (AVException e2) {
+											freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
 											runOnUiThread(new Runnable() {
 												public void run() {
-													Toast.makeText(FreightActivity.this, "保存‘精分’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+													try {
+														freight.save();
+														Toast.makeText(FreightActivity.this, "扣‘精分’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+													} catch (AVException e) {
+														try {
+															freight.save();
+															Toast.makeText(FreightActivity.this, "扣‘精分’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+														} catch (AVException e1) {
+															try {
+																freight.save();
+																Toast.makeText(FreightActivity.this, "扣‘精分’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+															} catch (AVException e2) {
+																runOnUiThread(new Runnable() {
+																	public void run() {
+																		Toast.makeText(FreightActivity.this, "运单保存失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+																	}
+																});
+															}
+														}
+													}
 												}
 											});
 											return null;
@@ -818,14 +875,33 @@ public class FreightActivity extends Activity {
 								AVCloud.callFunction("chargingUserWithoutReward", params2);
 								freight.addUnique("statusGroup", 235);
 							} catch (AVException e) {
+								freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
 								runOnUiThread(new Runnable() {
 									public void run() {
-										Toast.makeText(FreightActivity.this, "扣‘加固’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+										try {
+											freight.save();
+											Toast.makeText(FreightActivity.this, "扣‘加固’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+										} catch (AVException e) {
+											try {
+												freight.save();
+												Toast.makeText(FreightActivity.this, "扣‘加固’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+											} catch (AVException e1) {
+												try {
+													freight.save();
+													Toast.makeText(FreightActivity.this, "扣‘加固’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+												} catch (AVException e2) {
+													runOnUiThread(new Runnable() {
+														public void run() {
+															Toast.makeText(FreightActivity.this, "扣‘加固’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+														}
+													});
+												}
+											}
+										}
 									}
 								});
 							}
 						}
-
 						freight.setStatus(YDFreight.STATUS_PENDING_DELIVERY);
 						try {
 							freight.save();
@@ -842,7 +918,31 @@ public class FreightActivity extends Activity {
 										try {
 											freight.save();
 										} catch (AVException e4) {
-											Toast.makeText(FreightActivity.this, "运单保存失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+											freight.setStatus(YDFreight.STATUS_PENDING_FINISHED);
+											runOnUiThread(new Runnable() {
+												public void run() {
+													try {
+														freight.save();
+														Toast.makeText(FreightActivity.this, "运单保存失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+													} catch (AVException e) {
+														try {
+															freight.save();
+															Toast.makeText(FreightActivity.this, "运单保存失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+														} catch (AVException e1) {
+															try {
+																freight.save();
+																Toast.makeText(FreightActivity.this, "运单保存失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+															} catch (AVException e2) {
+																runOnUiThread(new Runnable() {
+																	public void run() {
+																		Toast.makeText(FreightActivity.this, "扣‘加固’失败！请重试“完成运单”", Toast.LENGTH_LONG).show();
+																	}
+																});
+															}
+														}
+													}
+												}
+											});
 										}
 									}
 								}
